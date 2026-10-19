@@ -26,14 +26,14 @@ Total.backup(path + '/app.bundle', PATH.root(), function() {
 }, function(path, isdir) {
 
 	if (!isdir)
-		return path.split('/').length > 2;
+		return path.split('/').length > 2 || path == '/extensions.js' || path === '/version';
 
 	var p = path.split('/').trim();
 
 	if (!p[0] || (p.length === 1 && p[0] === 'plugins'))
 		return true;
 
-	var allowed = ['controllers', 'definitions', 'modules', 'public', 'schemas', 'views', 'resources'];
+	var allowed = ['actions', 'controllers', 'definitions', 'modules', 'public', 'schemas', 'views', 'resources'];
 
 	for (var m of allowed) {
 		if (path.indexOf(m) === 1)

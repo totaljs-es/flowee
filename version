@@ -1,0 +1,12 @@
+2.0
+
+===================================
+Version: 2.0
+===================================
+
+- based on Total.js Flow 11.1
+- the access to the FlowStreams is checked in every action and in the connection of the editor
+- the students work only with the FlowStreams of their groups (and with the ones that they own), the teachers with all
+- the global variables, the settings and the console are for the teachers
+- added the Classroom panel: practice templates, copies for groups or for each student, overview and restoring
+- English and Spanish
