@@ -1,0 +1,71 @@
+<ui-component name="miniform" path="*form" config="if:CLASS;icon:ti ti-users;autofocus:true;reload:?/reload;scrollbar:0;submit:?/submit;width:520" class="hidden CLASS" plugin="CLASS">
+	<div class="padding">
+		<div class="help m">@(The template is copied for each selected group.)</div>
+		<div class="ui-input-label">@(Groups):</div>
+		<ui-bind path="?.items" config="template" class="block m">
+			<script type="text/html">
+				{{ foreach m in value }}
+				<div class="exec" data-exec="?/toggle" data-id="{{ m.id }}" style="cursor:pointer;padding:7px 10px;margin-bottom:5px;border:1px solid rgba(0,0,0,0.12);border-radius:6px;user-select:none"><i class="ti {{ if m.selected }}ti-check-square green{{ else }}ti-square{{ fi }} mr5"></i>{{ m.name }}</div>
+				{{ end }}
+			</script>
+		</ui-bind>
+		<ui-component name="input" path="?.students" config="type:checkbox" class="m b">@(One copy for each student of the group)</ui-component>
+		<div class="help">@(Each student sees and works only with his own copy. Needs the setting "op_groups" in the config. Without it, one copy is made for the whole group.)</div>
+	</div>
+	<nav>
+		<button name="submit"><i class="ti ti-check-circle"></i>@(ASSIGN)</button>
+		<button name="cancel">@(Cancel)</button>
+	</nav>
+</ui-component>
+
+<script>
+
+	PLUGIN(function(exports) {
+
+		var caller;
+
+		exports.reload = function(form) {
+
+			if (!caller)
+				caller = exports.caller;
+
+			var items = [];
+
+			for (var g of caller.model.groups)
+				items.push({ id: g.id, name: g.name, selected: false });
+
+			exports.set('items', items);
+			form.reconfigure({ title: '@(Assign)' + ': ' + exports.model.name });
+		};
+
+		exports.toggle = function(el) {
+			var item = exports.model.items.findItem('id', ATTRD(el));
+			item.selected = !item.selected;
+			exports.update('items', true);
+		};
+
+		exports.submit = function(hide) {
+
+			var model = exports.model;
+			var groups = [];
+
+			for (var m of model.items) {
+				if (m.selected)
+					groups.push(m.id);
+			}
+
+			if (!groups.length) {
+				SETTER('message/warning', '@(Choose at least one group)');
+				return;
+			}
+
+			exports.tapi('Classroom|assign ERROR @showloading', { id: model.id, groups: groups, students: !!model.students }, function(response) {
+				hide();
+				caller.refresh();
+				SETTER('notifybar/success', '@(Copies created):' + ' ' + response.created + (response.skipped ? (' (' + '@(already existed)' + ': ' + response.skipped + ')') : ''));
+			});
+		};
+
+	});
+
+</script>

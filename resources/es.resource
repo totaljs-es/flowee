@@ -257,3 +257,38 @@ Tyoexct                  : Fallido
 T1jlu84c                 : Grupo de OpenPlatform
 Tso1tsn                  : Elige un grupo
 T1swntwb                 : Elige uno de tus grupos
+Twzvbcj                  : Aula
+T1u8c0h4                 : Los usuarios de OpenPlatform no están disponibles. Revisa el ajuste "op_groups" del config.
+T1d028m2                 : La plantilla no existe
+Twew050                  : Plantillas de práctica
+T1cmjhsj                 : copias
+Twl9frj                  : Asignar
+T12h6yvr                 : Todavía no hay plantillas. Abre el menú de un FlowStream y elige "Usar como plantilla".
+T10ffa8k                 : Alumnos y FlowStreams
+T1fh8yfn                 : Todos los grupos
+T17u62ca                 : Todas las plantillas
+T1e8s9sq                 : Plantilla
+T1j9cymm                 : Buscar alumno o FlowStream
+T1vheqe3                 : Alumno
+T154b66q                 : Estado
+T1g719ay                 : Último cambio
+Tekmob4                  : Compartido en el grupo
+T13f2yby                 : En pausa
+T1h6dz8f                 : En ejecución
+T1s15uda                 : Aún sin editar
+T1td8p4p                 : No hay nada que mostrar.
+T1gtii                   : Abrir
+Tyk6k0d                  : Restaurar desde la plantilla
+T1i6i6nb                 : El trabajo del alumno en <b>"{name}"</b> se sustituirá por la plantilla. ¿Continuar?
+T19oiycu                 : Restaurar
+T13l8k0e                 : El FlowStream se ha restaurado desde la plantilla.
+Tfqu1e1                  : La plantilla se copia para cada grupo seleccionado.
+Tzex2pg                  : Grupos
+Td137hf                  : Una copia para cada alumno del grupo
+T1e71vuf                 : Cada alumno ve y trabaja solo con su copia. Necesita el ajuste "op_groups" del config. Sin él, se hace una copia para todo el grupo.
+Tw32wof                  : ASIGNAR
+Tnwrxey                  : Elige al menos un grupo
+Tcczzjv                  : Copias creadas
+Tcx6gi6                  : ya existían
+T141qam7                 : Quitar de las plantillas
+T1gnzv5b                 : Usar como plantilla

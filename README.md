@@ -28,6 +28,19 @@ This edition is based on **Total.js Flow 11** and adds the classroom layer:
 - The global variables, the settings and the console of the application are for the teachers.
 - The groups come with the session of OpenPlatform. The setting `op_groups` of the `config` is optional.
 
+### Classroom (teachers)
+
+The teachers have a new section, **Classroom**:
+
+- **Practice templates.** In the menu of a FlowStream choose *Use as template*. The template is not shown to the students.
+- **Assign.** Choose a template and the groups: every group receives a copy, or, with *One copy for each student of the group*, every student receives his own copy. The students see only their own copy (the copies have an owner). Assigning again does not repeat the copies that already exist.
+- **Overview.** A table with the student, the group, the FlowStream, its status, the messages and the last change. It can be filtered by group, by template and by text.
+- **Restore.** The work of a student can be replaced by the template again. A copy can be removed or opened as any FlowStream.
+
+The copies for each student need the address of the users API of OpenPlatform in the setting `op_groups` of the `config` (the public API of the users, with its token). Without it, the template is copied once for each group.
+
+The FlowStreams that a student creates are private to him. The FlowStreams that a teacher creates in a group are shared by the students of that group.
+
 We are still working on additional tasks in collaboration with UPM.
 
 ## Tests

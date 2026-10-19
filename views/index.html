@@ -863,6 +863,9 @@
 				if (user.sa || user.permissions.includes('create'))
 					opt.items.push({ id: 'clone', name: '@(Clone)', icon: 'ti ti-clone' });
 
+				if (user.sa)
+					opt.items.push({ id: 'template', name: item.template ? '@(Remove from templates)' : '@(Use as template)', icon: 'ti ti-copy' });
+
 				// opt.items.push({ id: 'copy', name: '@(Copy to clipboard)', icon: 'ti ti-copy' });
 				opt.items.push({ id: 'copy2', name: '@(Copy as JSON)', icon: 'ti ti-copy' });
 				opt.items.push({ id: 'download', name: '@(Download)', icon: 'ti ti-download' });
@@ -938,6 +941,9 @@
 								SET('streamform @reset', response);
 								exports.set('form @hideloading', 'streamform');
 							});
+							break;
+						case 'template':
+							user.sa && exports.tapi('Classroom|template ERROR', { id: id, is: !item.template }, exports.refresh);
 							break;
 						case 'remove':
 							user.sa && SETTER('approve/show', '@(Are you sure you want to remove selected FlowStream "{0}"?)'.format(item.name), '"ti ti-remove" @(Remove)', function() {

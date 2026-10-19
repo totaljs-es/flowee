@@ -32,7 +32,15 @@ const GROUPS = [{ id: 'g1', name: 'Class A' }, { id: 'g2', name: 'Class B' }, { 
 
 function fakeop() {
 	return Http.createServer(function(req, res) {
-		const token = new URL(req.url, 'http://x').searchParams.get('token').split('~')[0];
+
+		// The public API of the users
+		if (req.url.startsWith('/users/')) {
+			res.setHeader('content-type', 'application/json');
+			res.end(JSON.stringify({ groups: GROUPS, users: Object.keys(USERS).map(key => Object.assign({ isdisabled: false, isinactive: false }, USERS[key])) }));
+			return;
+		}
+
+		const token = (new URL(req.url, 'http://x').searchParams.get('token') || '').split('~')[0];
 		const user = USERS[token];
 		if (!user) {
 			res.statusCode = 401;
@@ -86,11 +94,15 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 	Fs.cpSync(ROOT, dir, { recursive: true, filter: file => !skip.has(Path.basename(file)) });
 	Fs.mkdirSync(Path.join(dir, 'node_modules'));
 	Fs.symlinkSync(process.env.TOTAL5 || Path.dirname(require.resolve('total5/package.json', { paths: [ROOT] })), Path.join(dir, 'node_modules', 'total5'));
+	Fs.appendFileSync(Path.join(dir, 'config'), '\nop_groups : http://127.0.0.1:' + OP_PORT + '/users/?token=test\n');
 	Fs.mkdirSync(Path.join(dir, 'databases'));
 	Fs.writeFileSync(Path.join(dir, 'databases', 'memorize_preferences.json'), JSON.stringify({ op_reqtoken: 'REQ', op_restoken: 'RES', token: 'privatetoken', name: 'Flow EE', env: 'dev' }));
 
 	const op = fakeop();
-	const app = spawn(process.execPath, ['index.js', String(APP_PORT), '--release'], { cwd: dir, stdio: 'ignore' });
+	// A group of processes: the application starts a process for each FlowStream and all of them must stop at the end
+	const app = spawn(process.execPath, ['index.js', String(APP_PORT), '--release'], { cwd: dir, stdio: 'ignore', detached: true });
+	const stop = () => { try { process.kill(-app.pid, 'SIGKILL'); } catch (e) {} };
+	process.on('exit', stop);
 	const results = [];
 
 	function check(name, ok, detail) {
@@ -130,7 +142,7 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		r = await api('s1', 'Streams');
 		check('a student sees only the FlowStreams of his group', r.json && r.json.length === 1 && r.json[0].name === 'Student 1 flow', r.text);
 		r = await api('s3', 'Streams');
-		check('a student in two groups sees both', r.json && r.json.length === 2, r.text);
+		check('a student does not see the private FlowStreams of his classmates', r.json && r.json.length === 0, r.text);
 
 		for (const [schema, data] of [['Streams|read', { id: two.id }], ['Streams|raw', { id: two.id }], ['Streams|export', { id: two.id }], ['Streams|pause', { id: two.id, is: 1 }], ['Streams|restart', { id: two.id }], ['Variables|read', { id: two.id }], ['Variables|save', { id: two.id, data: { x: 1 } }], ['Streams|remove', { id: two.id }], ['Streams|save', { id: two.id, name: 'Taken', group: 'g1', icon: 'ti ti-microchip' }], ['Streams|save', { id: two.id, name: 'Taken', group: 'g2', icon: 'ti ti-microchip' }]]) {
 			r = await api('s1', schema, data);
@@ -151,6 +163,53 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		r = await api('s2', 'Streams');
 		check('the FlowStream of a student was not changed by other students', r.json && r.json.length === 1 && r.json[0].name === 'Student 2 flow', r.text);
 
+		// Practice templates
+		r = await api('s1', 'Classroom');
+		check('a student cannot use the panel of the teacher', denied(r), r.text);
+		r = await api('s1', 'Classroom|template', { id: one.id, is: true });
+		check('a student cannot mark a template', denied(r), r.text);
+
+		r = await api('teacher', 'Streams|save', { name: 'Lab 1', icon: 'ti ti-microchip' });
+		check('the teacher creates a FlowStream without a group', r.json && r.json.success, r.text);
+		await sleep(1000);
+		const lab = ((await api('teacher', 'Streams')).json || []).find(m => m.name === 'Lab 1') || {};
+		r = await api('teacher', 'Classroom|template', { id: lab.id, is: true });
+		check('the teacher marks it as a template', r.json && r.json.success, r.text);
+
+		r = await api('teacher', 'Classroom');
+		check('the panel returns the groups and the students', r.json && r.json.groups.length === 3 && r.json.students.length === 3 && r.json.hasusers, r.text);
+
+		r = await api('teacher', 'Classroom|assign', { id: lab.id, groups: ['g1'], students: true });
+		check('the template is assigned with a copy for each student of the group', r.json && r.json.created === 2, r.text);
+		r = await api('teacher', 'Classroom|assign', { id: lab.id, groups: ['g1'], students: true });
+		check('assigning again does not repeat the copies', r.json && r.json.created === 0 && r.json.skipped === 2, r.text);
+		r = await api('teacher', 'Classroom|assign', { id: lab.id, groups: ['g2'], students: false });
+		check('the template is assigned to a whole group', r.json && r.json.created === 1, r.text);
+
+		await sleep(1500);
+		r = await api('s1', 'Streams');
+		const names1 = (r.json || []).map(m => m.name).sort();
+		check('a student sees his own work and his own copy', names1.length === 2 && names1.includes('Lab 1 · Student 1') && names1.includes('Student 1 flow'), r.text);
+		r = await api('s3', 'Streams');
+		const names3 = (r.json || []).map(m => m.name).sort();
+		check('another student of the same group sees only his copy and the shared one', names3.length === 2 && names3.includes('Lab 1 · Student 3') && names3.includes('Lab 1 · Class B') && !names3.includes('Lab 1 · Student 1'), r.text);
+		r = await api('s2', 'Streams');
+		check('a student of another group sees only the shared copy and his work', (r.json || []).map(m => m.name).sort().join('|') === 'Lab 1 · Class B|Student 2 flow', r.text);
+
+		const copy = ((await api('s1', 'Streams')).json || []).find(m => m.name === 'Lab 1 · Student 1') || {};
+		r = await api('s1', 'Variables|save', { id: copy.id, data: { answer: 42 } });
+		check('a student works in his copy', r.json && r.json.success, r.text);
+		r = await api('s1', 'Classroom|reset', { id: copy.id });
+		check('a student cannot restore a copy', denied(r), r.text);
+		r = await api('teacher', 'Classroom|reset', { id: copy.id });
+		check('the teacher restores a copy from the template', r.json && r.json.success, r.text);
+		await sleep(1000);
+		r = await api('s1', 'Variables|read', { id: copy.id });
+		check('the work of the student was replaced by the template', r.json && r.json.answer === undefined, r.text);
+		r = await api('teacher', 'Streams');
+		const row = (r.json || []).find(m => m.id === copy.id) || {};
+		check('the teacher sees the owner and the template of each copy', row.ownername === 'Student 1' && row.templateid === lab.id, JSON.stringify(row).slice(0, 160));
+
 		let ws = await socket('s1', one.id);
 		check('a student opens the editor of his FlowStream', ws.open, JSON.stringify(ws));
 		ws = await socket('s1', two.id);
@@ -162,7 +221,7 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		check('the tests finished without an error', false, e && e.stack);
 	}
 
-	app.kill();
+	stop();
 	op.close();
 	Fs.rmSync(tmp, { recursive: true, force: true });
 

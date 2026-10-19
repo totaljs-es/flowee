@@ -16,7 +16,7 @@ NEWACTION('Streams', {
 				if (!FUNC.streamaccess($.user, item))
 					continue;
 				let instance = Flow.instances[key];
-				arr.push({ id: item.id, name: item.name, group: item.group, author: item.author, reference: item.reference, url: item.url, color: item.color, icon: item.icon, readme: item.readme, dtcreated: item.dtcreated, dtupdated: item.dtupdated, errors: false, size: item.size || 0, version: item.version, proxypath: item.proxypath ? (CONF.default_root ? (CONF.default_root + item.proxypath.substring(1)) : item.proxypath) : '', memory: item.memory, stats: instance ? instance.flow.stats : {} });
+				arr.push({ id: item.id, name: item.name, group: item.group, template: !!item.template, templateid: item.templateid, ownerid: item.ownerid, ownername: item.ownername, author: item.author, reference: item.reference, url: item.url, color: item.color, icon: item.icon, readme: item.readme, dtcreated: item.dtcreated, dtupdated: item.dtupdated, errors: false, size: item.size || 0, version: item.version, proxypath: item.proxypath ? (CONF.default_root ? (CONF.default_root + item.proxypath.substring(1)) : item.proxypath) : '', memory: item.memory, stats: instance ? instance.flow.stats : {} });
 			}
 		}
 		$.callback(arr);
@@ -107,6 +107,13 @@ NEWACTION('Streams|save', {
 		if (init) {
 
 			model.id = 'f' + UID();
+
+			// A FlowStream of a student is private to him (the teachers create FlowStreams that are shared in the group)
+			if (!$.user.sa) {
+				model.ownerid = $.user.id;
+				model.ownername = $.user.name;
+			}
+
 			model.design = {};
 			model.components = {};
 			model.variables = {};
@@ -328,6 +335,16 @@ NEWACTION('Streams|import', {
 
 		data.id = 'f' + UID();
 
+		if ($.user.sa) {
+			delete data.ownerid;
+			delete data.ownername;
+		} else {
+			data.ownerid = $.user.id;
+			data.ownername = $.user.name;
+		}
+
+		delete data.template;
+		delete data.templateid;
 		delete data.unixsocket;
 		delete data.directory;
 		delete data.size;

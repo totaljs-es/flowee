@@ -1,0 +1,245 @@
+<style>
+	.CLASS .cr-templates { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+	.CLASS .cr-template { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid rgba(0,0,0,0.12); border-radius: 8px; background: #FFF; }
+	.CLASS .cr-template .icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #FFF; background: #5B7CC5; }
+	.CLASS .cr-table { width: 100%; border-collapse: collapse; background: #FFF; border: 1px solid rgba(0,0,0,0.12); border-radius: 8px; }
+	.CLASS .cr-table th { text-align: left; font-size: 12px; text-transform: uppercase; color: #888; padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.12); }
+	.CLASS .cr-table td { padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.06); vertical-align: middle; }
+	.CLASS .cr-table tr:last-child td { border-bottom: 0; }
+	.CLASS .cr-state { display: inline-flex; align-items: center; gap: 6px; }
+	.CLASS .cr-state i { width: 8px; height: 8px; border-radius: 50%; background: #1BA84B; display: inline-block; }
+	.CLASS .cr-state.paused i { background: #AAA; }
+	.CLASS .cr-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #EAF0FF; color: #3556A8; }
+	.CLASS .cr-error { color: #D33; }
+	.CLASS .cr-filters { display: grid; grid-template-columns: 260px 260px 1fr; gap: 10px; margin-bottom: 16px; }
+</style>
+
+<div class="virtualwire hidden" data-if="CLASS">
+	<div class="pull-right">
+		<button class="exec" data-exec="CLASS/refresh"><i class="ti ti-sync"></i>@(Refresh)</button>
+	</div>
+</div>
+
+<ui-plugin config="aclass:1">
+	<ui-component name="viewbox" config="parent:auto;margin:0" class="invisible">
+		<div class="padding">
+
+			<div class="caption m"><label><i class="ti ti-copy"></i>@(Practice templates)</label></div>
+			<ui-bind path="?.templates" config="template" class="block">
+				<script type="text/html">
+					{{ if value && value.length }}
+					<div class="cr-templates">
+						{{ foreach m in value }}
+						<div class="cr-template">
+							<div class="icon"{{ if m.color }} style="background-color:{{ m.color }}"{{ fi }}><i class="{{ m.icon }}"></i></div>
+							<div>
+								<div class="b">{{ m.name }}</div>
+								<div class="help">{{ m.copies }} @(copies)</div>
+							</div>
+							<button class="exec" data-exec="?/assign" data-id="{{ m.id }}"><i class="ti ti-users"></i>@(Assign)</button>
+						</div>
+						{{ end }}
+					</div>
+					{{ else }}
+					<div class="help m">@(There are no templates yet. Open the menu of a FlowStream and choose "Use as template".)</div>
+					{{ fi }}
+				</script>
+			</ui-bind>
+
+			<div class="caption m"><label><i class="ti ti-users"></i>@(Students and FlowStreams)</label></div>
+
+			<div class="cr-filters">
+				<ui-component name="input" path="?.fgroup" config="dirsource:?.groups;dirempty:@(All groups);dirraw:1">@(Group)</ui-component>
+				<ui-component name="input" path="?.ftemplate" config="dirsource:?.templates;dirempty:@(All templates);dirraw:1">@(Template)</ui-component>
+				<ui-component name="searchinput" path="?.fsearch" config="placeholder:@(Search student or FlowStream)"></ui-component>
+			</div>
+
+			<ui-bind path="?.rows" config="template" class="block">
+				<script type="text/html">
+					{{ if value && value.length }}
+					<table class="cr-table">
+						<thead>
+							<tr>
+								<th>@(Student)</th>
+								<th>@(Group)</th>
+								<th>@(FlowStream)</th>
+								<th>@(Status)</th>
+								<th>@(Messages)</th>
+								<th>@(Last change)</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{{ foreach m in value }}
+							<tr>
+								<td>{{ if m.ownername }}<b>{{ m.ownername }}</b>{{ else }}<span class="gray">@(Shared in the group)</span>{{ fi }}</td>
+								<td>{{ m.groupname }}</td>
+								<td><span class="link exec" data-exec="?/open" data-id="{{ m.id }}">{{ m.name }}</span>{{ if m.templatename }}<div class="help"><i class="ti ti-copy"></i> {{ m.templatename }}</div>{{ fi }}</td>
+								<td><span class="cr-state{{ if m.paused }} paused{{ fi }}"><i></i>{{ if m.paused }}@(Paused){{ else }}@(Running){{ fi }}</span>{{ if m.errors }} <span class="cr-error"><i class="ti ti-exclamation-triangle"></i> {{ m.errors }}</span>{{ fi }}</td>
+								<td>{{ m.messages }}</td>
+								<td>{{ if m.dtupdated }}{{ m.dtupdated | format('yyyy-MM-dd HH:mm') }}{{ else }}<span class="gray">@(Not edited yet)</span>{{ fi }}</td>
+								<td style="text-align:right"><span class="exec" data-exec="?/options" data-id="{{ m.id }}"><i class="ti ti-ellipsis-v"></i></span></td>
+							</tr>
+							{{ end }}
+						</tbody>
+					</table>
+					{{ else }}
+					<div class="help">@(There is nothing to show.)</div>
+					{{ fi }}
+				</script>
+			</ui-bind>
+
+		</div>
+	</ui-component>
+</ui-plugin>
+
+<ui-component name="importer" path="*form" config="if:formCLASS;url:@{#}/~ID~/forms/assign.html"></ui-component>
+
+<script>
+	PLUGIN(function(exports) {
+
+		exports.reload = function() {
+			BREADCRUMB.add('@(Classroom)', NAV.url);
+			exports.refresh();
+		};
+
+		exports.refresh = function() {
+			exports.tapi('Classroom ERROR', function(info) {
+				exports.tapi('Streams ERROR @hideloading', function(streams) {
+
+					var groups = info.groups || [];
+					var names = {};
+					var byid = {};
+					var templates = [];
+					var rows = [];
+
+					groups.quicksort('name');
+
+					for (var g of groups)
+						names[g.id] = g.name;
+
+					for (var m of streams)
+						byid[m.id] = m;
+
+					for (var m of streams) {
+						if (m.template) {
+							var copies = 0;
+							for (var c of streams) {
+								if (c.templateid === m.id)
+									copies++;
+							}
+							templates.push({ id: m.id, name: m.name, icon: m.icon, color: m.color, copies: copies });
+						}
+					}
+
+					for (var m of streams) {
+						rows.push({
+							id: m.id,
+							name: m.name,
+							group: m.group,
+							groupname: m.group ? (names[m.group] || m.group) : '',
+							ownername: m.ownername,
+							templateid: m.templateid,
+							templatename: m.templateid && byid[m.templateid] ? byid[m.templateid].name : '',
+							template: m.template,
+							paused: m.stats && m.stats.paused,
+							errors: m.stats && m.stats.errors ? m.stats.errors : 0,
+							messages: m.stats && m.stats.messages ? m.stats.messages : 0,
+							dtupdated: m.dtupdated
+						});
+					}
+
+					rows.quicksort('ownername, name');
+					templates.quicksort('name');
+
+					exports.set('all', rows);
+					exports.set('streams', streams);
+					exports.set('info', info);
+					exports.set('groups', groups);
+					exports.set('templates', templates);
+					exports.filter();
+				});
+			});
+		};
+
+		exports.filter = function() {
+
+			var model = exports.model;
+			var rows = model.all || [];
+			var search = (model.fsearch || '').toLowerCase();
+			var output = [];
+
+			for (var m of rows) {
+				if (model.fgroup && m.group !== model.fgroup)
+					continue;
+				if (model.ftemplate && m.templateid !== model.ftemplate)
+					continue;
+				if (search && (m.name + ' ' + (m.ownername || '')).toLowerCase().indexOf(search) === -1)
+					continue;
+				output.push(m);
+			}
+
+			exports.set('rows', output);
+		};
+
+		exports.watch('fgroup', () => exports.filter());
+		exports.watch('ftemplate', () => exports.filter());
+		exports.watch('fsearch', () => exports.filter());
+
+		exports.assign = function(el) {
+			var model = exports.model;
+			var id = ATTRD(el);
+			var template = model.templates.findItem('id', id);
+			var path = exports.format('form');
+			SET(path + ' @default', { id: id, name: template.name, groups: [], students: model.info && model.info.hasusers });
+			SET('*form', path);
+		};
+
+		exports.open = function(el) {
+			EXEC('common/open', $('<div data-id="{0}"></div>'.format(ATTRD(el))));
+		};
+
+		exports.options = function(el) {
+
+			var model = exports.model;
+			var id = ATTRD(el);
+			var item = model.all.findItem('id', id);
+			var opt = {};
+
+			opt.element = el;
+			opt.align = 'right';
+			opt.items = [];
+			opt.items.push({ id: 'open', name: '@(Open)', icon: 'ti ti-pencil' });
+
+			if (item.templateid)
+				opt.items.push({ id: 'reset', name: '@(Restore from the template)', icon: 'ti ti-undo' });
+
+			opt.items.push('-');
+			opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
+
+			opt.callback = function(selected) {
+				switch (selected.id) {
+					case 'open':
+						exports.open(el);
+						break;
+					case 'reset':
+						SETTER('approve/show', '@(The work of the student in <b>"{name}"</b> will be replaced by the template. Continue?)'.args(item), '"ti ti-undo" @(Restore)', function() {
+							exports.tapi('Classroom|reset ERROR @showloading', { id: id }, function() {
+								exports.refresh();
+								SETTER('notifybar/success', '@(The FlowStream has been restored from the template.)');
+							});
+						});
+						break;
+					case 'remove':
+						SETTER('approve/show', '@(Are you sure you want to remove <b>"{name}"</b>?)'.args(item), '"ti ti-remove" @(Remove)', function() {
+							exports.tapi('Streams|remove ERROR @showloading', { id: id }, () => exports.refresh());
+						});
+						break;
+				}
+			};
+
+			SETTER('menu/show', opt);
+		};
+
+	});
+</script>
