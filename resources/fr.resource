@@ -363,3 +363,6 @@ T1axeojd     : Créer un truc génial
 Tifouz6      : Créer un Flux
 T1j8rl       : Taille
 T1a2p8u      : Proxy
+T1jlu84c                 : Groupe OpenPlatform
+Tso1tsn                  : Choisissez un groupe
+T1swntwb                 : Choisissez un de vos groupes

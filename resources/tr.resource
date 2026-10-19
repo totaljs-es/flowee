@@ -395,3 +395,6 @@ T1q4g6b6       : FlowStream oluşturun
 T19fvgfc       : Toplam çalışan FlowStream'ler
 T1j8rl         : Boyut
 T1a2p8u        : Proxy
+T1jlu84c                 : OpenPlatform grubu
+Tso1tsn                  : Bir grup seçin
+T1swntwb                 : Gruplarınızdan birini seçin

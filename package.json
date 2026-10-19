@@ -1,16 +1,17 @@
 {
   "name": "flow_ee",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/totaljs-Spain/flow_ee"
   },
   "dependencies": {
-    "total5": "beta"
+    "total5": "latest"
   },
   "scripts": {
-    "start": "node index.js 8000"
+    "start": "node index.js 8000",
+    "test": "node tests/education.js"
   },
   "keywords": [
     "flow_ee",

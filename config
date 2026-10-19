@@ -1,8 +1,9 @@
-name                        : Total.js Flow Education Edition v1
+name                        : Total.js Flow Education Edition v2
 flowstream_worker           : fork
+$proxytimeout               : 120
 
-// URL link to the user API in OpenPlatform needs to be configured in the settings within OpenPlatform.
-op_groups                   : https://my_openplatform/users/?token=[]
+// Optional: the address of the users API of OpenPlatform (the groups of the teachers). Without it the groups come with the session of the user.
+// op_groups                   : https://my_openplatform/users/?token=[]
 
 cookie          (generate)  : 6
 cookie_secret   (generate)  : 10

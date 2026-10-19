@@ -254,3 +254,6 @@ Ty15iz8                  : Copiar código fuente
 Tygvmh7                  : Errores
 Tyk542c                  : Exportar
 Tyoexct                  : Fallido
+T1jlu84c                 : Grupo de OpenPlatform
+Tso1tsn                  : Elige un grupo
+T1swntwb                 : Elige uno de tus grupos

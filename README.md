@@ -18,12 +18,26 @@ This special edition of Total.js Flow was born thanks to UPM. [(Universidad Poli
 
 ## What is different in this edition of Total.js Flow?
 
-- This version must be working into [OpenPlatform](https://docs.totaljs.com/openplatform/)
-- In this version, FlowStreams can be added to a specific OpenPlatform group.
-- Students can only work in FlowStreams that have been added to the group within their user group as defined in OpenPlatform.
-- Teacher (User SA) can access every FlowStream.
+This edition is based on **Total.js Flow 11** and adds the classroom layer:
+
+- This version must be working inside [OpenPlatform](https://docs.totaljs.com/openplatform/).
+- Every FlowStream belongs to a group of OpenPlatform (the field *OpenPlatform group* of the FlowStream).
+- **Students** see and work only with the FlowStreams of their own groups. They can create FlowStreams only in their groups.
+- **Teachers** (users `sa` of OpenPlatform) see and work with every FlowStream and can choose any group.
+- The rules are applied in the list, in every action on a FlowStream (read, save, remove, pause, restart, export, import, variables) and in the connection of the editor, so knowing the identifier of a FlowStream is not enough to open it.
+- The global variables, the settings and the console of the application are for the teachers.
+- The groups come with the session of OpenPlatform. The setting `op_groups` of the `config` is optional.
 
 We are still working on additional tasks in collaboration with UPM.
+
+## Tests
+
+```bash
+npm install
+npm test
+```
+
+The test starts a fake OpenPlatform and a temporary copy of the application, and checks the access of a teacher and of three students. Nothing is written in the folder of the project.
 
 ## Installation
 
