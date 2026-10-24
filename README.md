@@ -143,7 +143,16 @@ node index.js <port>
 
 ### Flow in Docker
 
+From the GitHub Container Registry ([package](https://github.com/totaljs-es/flowee/pkgs/container/flowee), built by GitHub Actions on every push to `master`):
+
+```bash
+docker pull ghcr.io/totaljs-es/flowee
+docker run -p 8000:8000 ghcr.io/totaljs-es/flowee
+```
+
+From Docker Hub:
+
 ```bash
 docker pull totaljses/flowee
 docker run -p 8000:8000 totaljses/flowee
-````
+```
