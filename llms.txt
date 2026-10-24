@@ -2,7 +2,7 @@
 
 > Total.js Flow prepared to be used in a classroom, built with UPM (Universidad Politécnica de Madrid). Based on Total.js Flow 11, it runs inside OpenPlatform: students work only with their own FlowStreams, teachers see all of them and hand out practice templates to groups or to every student. English and Spanish.
 
-Node.js 24, Total.js 5, plain JavaScript (no TypeScript). Docker image: `ghcr.io/totaljs-es/flowee` (also `totaljses/flowee`). MIT license.
+Node.js 24, Total.js 5, plain JavaScript (no TypeScript). Docker image: `ghcr.io/totaljs-es/flowee`. MIT license.
 
 ## Start here
 

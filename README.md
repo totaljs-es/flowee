@@ -149,10 +149,3 @@ From the GitHub Container Registry ([package](https://github.com/totaljs-es/flow
 docker pull ghcr.io/totaljs-es/flowee
 docker run -p 8000:8000 ghcr.io/totaljs-es/flowee
 ```
-
-From Docker Hub:
-
-```bash
-docker pull totaljses/flowee
-docker run -p 8000:8000 totaljses/flowee
-```

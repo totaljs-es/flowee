@@ -20,7 +20,7 @@ npm start                      # node index.js 8000
 ```
 
 ```bash
-docker run -p 8000:8000 ghcr.io/totaljs-es/flowee      # also totaljses/flowee on Docker Hub
+docker run -p 8000:8000 ghcr.io/totaljs-es/flowee
 docker compose up                                      # docker-compose.yaml keeps databases and flowstream in volumes
 ```
 
