@@ -39,7 +39,7 @@ docker compose up                                      # docker-compose.yaml kee
 - `--components--/` are extra Flow components; `--extensions--/` and `extensions.js` load 3rd-party extensions into each FlowStream (do not remove `extensions.js`).
 - `--bundles--/*.bundle` are the **built** application and plugins; `bundle.sh` builds them. The Docker image runs from the bundles, not from the source.
 - `tests/education.js` is the test. `resources/es.resource` has the Spanish texts. `Dockerfile` and `docker-compose.yaml` build and run the image.
-- `.github/workflows/docker-image.yml` builds the image (linux/amd64 and linux/arm64) and publishes it to `ghcr.io/<owner>/flowee` on every push to `main` (`latest`, `sha-…`) and on every tag `v*` (`1.2.3`, `1.2`). A pull request only builds it. It needs no secrets.
+- `.github/workflows/docker-image.yml` builds the image (linux/amd64 and linux/arm64) and publishes it to `ghcr.io/<owner>/flowee` on every push to `master` (`latest`, `sha-…`) and on every tag `v*` (`1.2.3`, `1.2`). A pull request only builds it. It needs no secrets.
 - For agents: this file, `CLAUDE.md` and `GEMINI.md` (they import it), `.github/copilot-instructions.md`, `.claude/skills/` (two checklists: change and bundle, verify a change), `.claude/settings.json` (the commands that are safe to run without asking), and `llms.txt`. For Codex this file is the native entry point; the entries of `.agents/skills/` reuse the checklists of `.claude/skills/`.
 
 ## Commands
