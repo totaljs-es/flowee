@@ -1,0 +1,23 @@
+# Flow Education Edition
+
+> Total.js Flow prepared to be used in a classroom, built with UPM (Universidad Politécnica de Madrid). Based on Total.js Flow 11, it runs inside OpenPlatform: students work only with their own FlowStreams, teachers see all of them and hand out practice templates to groups or to every student. English and Spanish.
+
+Node.js 24, Total.js 5, plain JavaScript (no TypeScript). Docker image: `ghcr.io/totaljs-es/flowee` (also `totaljses/flowee`). MIT license.
+
+## Start here
+
+- [README](https://raw.githubusercontent.com/totaljs-es/flowee/main/README.md): What it is, roles, Classroom, configuration, OpenPlatform, data, tests, installation
+- [AGENTS.md](https://raw.githubusercontent.com/totaljs-es/flowee/main/AGENTS.md): For an agent: how to use it and how to work on the repository
+- [Release notes](https://raw.githubusercontent.com/totaljs-es/flowee/main/version): What changed in the edition
+
+## Code
+
+- [Access rules](https://raw.githubusercontent.com/totaljs-es/flowee/main/definitions/education.js): Who can work with which FlowStream
+- [Classroom plugin](https://raw.githubusercontent.com/totaljs-es/flowee/main/plugins/classroom/index.js): Practice templates, copies for groups and students
+- [OpenPlatform module](https://raw.githubusercontent.com/totaljs-es/flowee/main/modules/openplatform.js): Session and users of OpenPlatform
+- [Tests](https://raw.githubusercontent.com/totaljs-es/flowee/main/tests/education.js): A fake OpenPlatform, a teacher and three students
+
+## Optional
+
+- [Dockerfile](https://raw.githubusercontent.com/totaljs-es/flowee/main/Dockerfile): The image
+- [Docker workflow](https://raw.githubusercontent.com/totaljs-es/flowee/main/.github/workflows/docker-image.yml): Builds and publishes the image to ghcr.io

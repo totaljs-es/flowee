@@ -89,7 +89,7 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 
 	const tmp = Fs.mkdtempSync(Path.join(Os.tmpdir(), 'flowee-'));
 	const dir = Path.join(tmp, 'app');
-	const skip = new Set(['.git', 'node_modules', 'tests', '--bundles--']);
+	const skip = new Set(['.git', 'node_modules', 'tests', '--bundles--', 'databases', 'flowstream', 'logs', 'private']);
 
 	Fs.cpSync(ROOT, dir, { recursive: true, filter: file => !skip.has(Path.basename(file)) });
 	Fs.mkdirSync(Path.join(dir, 'node_modules'));
