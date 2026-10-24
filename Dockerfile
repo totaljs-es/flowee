@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:24-alpine
 MAINTAINER totaljses "info@totaljs.es"
 
 VOLUME /www
