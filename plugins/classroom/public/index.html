@@ -14,6 +14,15 @@
 	.CLASS .cr-palette-group { max-width: 320px; margin-bottom: 12px; }
 	.CLASS .cr-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin-bottom: 14px; }
 	.CLASS .cr-palette-item { cursor: pointer; user-select: none; padding: 8px 10px; border: 1px solid rgba(0,0,0,0.12); border-radius: 6px; background: #FFF; }
+	/* Buttons in the style of Flow: solid for the main action, outlined for the rest */
+	.CLASS .cr-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 18px; border: 0; border-radius: var(--radius); background-color: var(--color); color: #FFF; font-size: 13px; font-weight: bold; line-height: 1; outline: 0; cursor: pointer; user-select: none; }
+	.CLASS .cr-btn:hover { opacity: 0.85; }
+	.CLASS .cr-btn:focus-visible { box-shadow: 0 0 0 2px #FFF, 0 0 0 4px var(--color); }
+	.CLASS .cr-btn i { margin: 0; font-size: 15px; }
+	.CLASS .cr-btn.sec { height: 28px; padding: 0 12px; background: #FFF; color: #000; border: 1px solid #E0E0E0; font-weight: normal; }
+	.CLASS .cr-btn.sec:hover { background-color: #F4F6FB; opacity: 1; }
+	.ui-dark .CLASS .cr-btn.sec { background: #303030; color: #E0E0E0; border-color: #404040; }
+	.ui-dark .CLASS .cr-btn.sec:hover { background-color: #3A3A3A; }
 	.CLASS .cr-filters { display: grid; grid-template-columns: 260px 260px 1fr; gap: 10px; margin-bottom: 16px; }
 </style>
 
@@ -39,7 +48,7 @@
 								<div class="b">{{ m.name }}</div>
 								<div class="help">{{ m.copies }} @(copies)</div>
 							</div>
-							<button class="exec" data-exec="?/assign" data-id="{{ m.id }}"><i class="ti ti-users"></i>@(Assign)</button>
+							<button class="exec cr-btn sec" data-exec="?/assign" data-id="{{ m.id }}"><i class="ti ti-users"></i>@(Assign)</button>
 						</div>
 						{{ end }}
 					</div>
@@ -62,7 +71,7 @@
 						<div class="cr-palette-item exec" data-exec="?/palettetoggle" data-id="{{ m.key }}"><i class="ti {{ if m.selected }}ti-check-square green{{ else }}ti-square{{ fi }} mr5"></i><i class="{{ m.icon || 'ti ti-puzzle' }} mr5"></i><b>{{ m.name }}</b> <span class="help">{{ m.version }} · {{ m.sourcename }}</span></div>
 						{{ end }}
 					</div>
-					<button class="exec b" data-exec="?/palettesave"><i class="ti ti-check-circle"></i>@(Save the palette)</button>
+					<button class="exec cr-btn" data-exec="?/palettesave"><i class="ti ti-check-circle"></i>@(Save the palette)</button>
 					{{ else }}
 					{{ if value }}<div class="help m">@(There are no components yet. Add them to a FlowStream of your own.)</div>{{ fi }}
 					{{ fi }}

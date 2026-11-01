@@ -44,7 +44,7 @@
 
 <section class="hero" aria-labelledby="title">
 	<div>
-		<p class="eyebrow"><span class="status-dot"></span> Version 2.1 · Based on Total.js Flow 11.1 · MIT license</p>
+		<p class="eyebrow"><span class="status-dot"></span> Version 2.1 · Total.js Flow 11 · MIT license</p>
 		<h1 id="title">Total.js Flow, ready for <em>the classroom</em>.</h1>
 		<p class="lead">Every student works in a place of their own, the teacher sees the whole class and hands out the practices with one click. Groups, students and teacher come from OpenPlatform.</p>
 		<div class="install" data-copy="docker pull ghcr.io/totaljs-es/flowee"><span class="prompt">$</span>docker pull ghcr.io/totaljs-es/flowee</div>
@@ -191,36 +191,25 @@ docker rm -f flowee
 	</table></div>
 </section>
 
-<section class="section" aria-labelledby="data-title">
+<section class="section" aria-labelledby="included-title">
 	<div class="section-head">
-		<h2 id="data-title">Your data stays with you</h2>
-		<p>The work of the students does not leave your server.</p>
+		<h2 id="included-title">Everything included</h2>
+		<p>A complete classroom environment, ready to run on your own server.</p>
 	</div>
 	<div class="cards three">
-		<div class="card"><h3>In your volumes</h3><p>FlowStreams, student copies and settings live in <code>databases</code>, <code>flowstream</code> and <code>private</code>.</p></div>
-		<div class="card"><h3>What a FlowStream adds</h3><p><code>group</code>, <code>ownerid</code>, <code>ownername</code>, <code>template</code> and <code>templateid</code>: the OpenPlatform group, the student and the template a copy comes from.</p></div>
-		<div class="card"><h3>English and Spanish</h3><p>The interface follows the language of the user in OpenPlatform.</p></div>
+		<div class="card"><h3>Roles and groups</h3><p>Teacher and students, organised in the groups of OpenPlatform. Each student works only in their own space.</p></div>
+		<div class="card"><h3>Practice templates</h3><p>Hand out an exercise to a whole group or give every student their own copy, and restore it whenever you need.</p></div>
+		<div class="card"><h3>Class overview</h3><p>See who has started, who has errors and who needs help, and open any student’s FlowStream to guide them.</p></div>
+		<div class="card"><h3>Component palette</h3><p>Choose the components that each group can use. Students cannot edit or add components, so nobody breaks or copies them.</p></div>
+		<div class="card"><h3>Protected work</h3><p>Students cannot import FlowStreams or read the code of the components. Every FlowStream runs in its own process.</p></div>
+		<div class="card"><h3>Your server, your data</h3><p>Everything stays on your own infrastructure. English and Spanish interface, and sign-in with OpenPlatform on your server or in the cloud.</p></div>
 	</div>
-</section>
-
-<section class="section" aria-labelledby="new-title">
-	<div class="section-head">
-		<h2 id="new-title">What is new in 2.1</h2>
-	</div>
-	<div class="numbers">
-		<div class="number"><strong>11.1</strong><span>Up to date with Total.js Flow 11.1: jComponent and the fix for dragging components</span></div>
-		<div class="number"><strong>SSO</strong><span>Sign in with OpenPlatform in the cloud, with no impersonation of groups</span></div>
-		<div class="number"><strong>74</strong><span>automatic checks with a test OpenPlatform: teacher, several students, copies, restoring and privacy</span></div>
-		<div class="number"><strong>0</strong><span>bundles to maintain: the Docker image is built from the source</span></div>
-	</div>
-	<p class="note top">Students can no longer edit the code of the components or import FlowStreams, so nobody can copy or break a component. You choose the palette of components of each group. A template of a group is now only for teachers: the students of the group no longer see or edit it. We keep working with UPM; ideas to talk about: limits per student and automatic pause, deliveries with history, an exam mode with opening and closing dates and a read-only observer mode.</p>
 </section>
 
 <section class="section thanks" aria-labelledby="thanks-title">
 	<img src="assets/upm.png" alt="Universidad Politécnica de Madrid" width="100" height="77">
 	<div>
 		<h2 id="thanks-title">Thank you, UPM</h2>
-		<p>This edition was born thanks to the <a href="https://www.upm.es/internacional/" rel="noopener">Universidad Politécnica de Madrid</a> and its collaboration. Teaching with Flow, in a real classroom, is what shaped every rule of it.</p>
 	</div>
 </section>
 
