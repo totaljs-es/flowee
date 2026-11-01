@@ -1,244 +1,235 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="en" data-root="" data-copy-label="Copy" data-copied-label="Copied">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Flow Education Edition</title>
-	<meta name="description" content="Total.js Flow preparado para dar clase: grupos, alumnos y profesor con OpenPlatform, plantillas de prácticas y una imagen Docker lista para usar.">
-	<style>
-		:root {
-			--bg: #f6f8fc;
-			--card: #ffffff;
-			--text: #1b2333;
-			--muted: #5a6478;
-			--line: #dfe5f0;
-			--brand: #2f6fed;
-			--brand-soft: #e8f0ff;
-			--code-bg: #0f1726;
-			--code-text: #e6edf7;
-		}
-		:root:not([data-theme="light"]) { color-scheme: light dark; }
-		@media (prefers-color-scheme: dark) {
-			:root:not([data-theme="light"]) {
-				--bg: #0d1220;
-				--card: #151c2e;
-				--text: #e8edf7;
-				--muted: #98a3ba;
-				--line: #253049;
-				--brand: #6b9bff;
-				--brand-soft: #1a2750;
-				--code-bg: #070b15;
-			}
-		}
-		* { box-sizing: border-box; }
-		html { scroll-behavior: smooth; }
-		body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-		a { color: var(--brand); }
-		header.hero { padding: 64px 16px 48px; text-align: center; background: linear-gradient(180deg, var(--brand-soft), var(--bg)); }
-		.wrap { max-width: 920px; margin: 0 auto; padding: 0 16px; }
-		.hero h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; margin: 0 0 12px; }
-		.hero p { font-size: 1.15rem; color: var(--muted); max-width: 640px; margin: 0 auto 24px; }
-		.badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-		.badge { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px; font-size: .9rem; color: var(--muted); }
-		nav { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
-		nav .wrap { display: flex; gap: 4px 16px; flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; font-size: .92rem; }
-		nav a { text-decoration: none; color: var(--muted); }
-		nav a:hover { color: var(--brand); }
-		section { padding: 40px 0 8px; }
-		h2 { font-size: 1.6rem; margin: 0 0 12px; }
-		h3 { font-size: 1.1rem; margin: 24px 0 8px; }
-		.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 16px 0; }
-		.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
-		.card b { display: block; margin-bottom: 4px; }
-		.card span { color: var(--muted); font-size: .95rem; }
-		table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-size: .95rem; }
-		th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
-		th { background: var(--brand-soft); }
-		tr:last-child td { border-bottom: 0; }
-		.scroll { overflow-x: auto; }
-		pre { background: var(--code-bg); color: var(--code-text); padding: 14px 16px; border-radius: 10px; overflow-x: auto; font-size: .88rem; line-height: 1.5; }
-		code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; }
-		p code, li code, td code { background: var(--brand-soft); padding: 1px 6px; border-radius: 5px; }
-		ol.steps { counter-reset: s; list-style: none; padding: 0; }
-		ol.steps li { counter-increment: s; position: relative; padding: 4px 0 12px 44px; }
-		ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 2px; width: 30px; height: 30px; border-radius: 50%; background: var(--brand); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: .9rem; }
-		.note { border-left: 4px solid var(--brand); background: var(--brand-soft); padding: 10px 16px; border-radius: 0 10px 10px 0; margin: 16px 0; }
-		footer { margin-top: 56px; padding: 28px 16px; text-align: center; color: var(--muted); font-size: .9rem; border-top: 1px solid var(--line); }
-	</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flow Education Edition · Total.js Flow for the classroom</title>
+<meta name="description" content="Total.js Flow ready for teaching: groups, students and teacher with OpenPlatform, practice templates and a Docker image ready to use.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#f5f5ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101816" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://totaljs-es.github.io/flowee/">
+<link rel="alternate" hreflang="en" href="https://totaljs-es.github.io/flowee/">
+<link rel="alternate" hreflang="es" href="https://totaljs-es.github.io/flowee/es/">
+<link rel="alternate" hreflang="x-default" href="https://totaljs-es.github.io/flowee/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Flow Education Edition">
+<meta property="og:title" content="Flow Education Edition · Total.js Flow for the classroom">
+<meta property="og:description" content="Total.js Flow ready for teaching: groups, students and teacher with OpenPlatform, practice templates and a Docker image ready to use.">
+<meta property="og:url" content="https://totaljs-es.github.io/flowee/">
+<meta property="og:locale" content="en_GB">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="brand/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="brand/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png" sizes="180x180">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-<header class="hero">
-	<div class="wrap">
-		<h1>Total.js Flow Education Edition</h1>
-		<p>Flow preparado para dar clase: cada alumno trabaja en su sitio, tú ves todo el aula y repartes las prácticas con un clic.</p>
-		<div class="badges">
-			<span class="badge">Versión 2.1</span>
-			<span class="badge">Basada en Total.js Flow 11.1</span>
-			<span class="badge">Inglés y español</span>
-			<span class="badge">Docker (amd64 y arm64)</span>
-			<span class="badge">Licencia MIT</span>
-		</div>
-		<p style="margin-top:20px;font-size:.95rem">Nació gracias a la <b>Universidad Politécnica de Madrid (UPM)</b>, con su colaboración.</p>
+<a class="skip" href="#content">Skip to content</a>
+<header class="topbar">
+	<div class="wrap top-inner">
+		<a class="brand" href="./"><span class="brand-symbol"><img src="brand/totaljs.svg" alt="" width="30" height="30"></span><span class="brand-name">Flow Education<strong>FOR THE CLASSROOM</strong></span></a>
+		<nav class="top-links" aria-label="Main">
+			<a href="#changes">What changes</a>
+			<a href="#classroom">In the classroom</a>
+			<a href="#docker">Docker</a>
+			<a href="#openplatform">OpenPlatform</a>
+			<a class="lang" href="es/" hreflang="es" lang="es">Español</a>
+			<a class="repo-link" href="https://github.com/totaljs-es/flowee" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>
+		</nav>
 	</div>
 </header>
 
-<nav>
-	<div class="wrap">
-		<a href="#que-es">Qué es</a>
-		<a href="#que-cambia">Qué cambia</a>
-		<a href="#aula">En el aula</a>
-		<a href="#docker">Instalar con Docker</a>
-		<a href="#openplatform">OpenPlatform</a>
-		<a href="#configuracion">Configuración</a>
-		<a href="#datos">Datos y privacidad</a>
-		<a href="#novedades">Novedades 2.1</a>
+<main id="content" class="wrap">
+
+<section class="hero" aria-labelledby="title">
+	<div>
+		<p class="eyebrow"><span class="status-dot"></span> Version 2.1 · Based on Total.js Flow 11.1 · MIT license</p>
+		<h1 id="title">Total.js Flow, ready for <em>the classroom</em>.</h1>
+		<p class="lead">Every student works in a place of their own, the teacher sees the whole class and hands out the practices with one click. Groups, students and teacher come from OpenPlatform.</p>
+		<div class="install" data-copy="docker pull ghcr.io/totaljs-es/flowee"><span class="prompt">$</span>docker pull ghcr.io/totaljs-es/flowee</div>
+		<div class="actions">
+			<a class="button dark" href="#docker">Install it <span aria-hidden="true">→</span></a>
+			<a class="button light" href="#classroom">See how it is used in class</a>
+		</div>
+		<p class="links"><a href="https://github.com/totaljs-es/flowee" rel="noopener">GitHub</a> · <a href="https://github.com/totaljs-es/flowee/pkgs/container/flowee" rel="noopener">Docker image</a> · <a href="https://www.totaljs.com/flow/" rel="noopener">Total.js Flow</a> · <a href="https://docs.totaljs.com/openplatform/" rel="noopener">OpenPlatform</a></p>
 	</div>
-</nav>
-
-<main class="wrap">
-
-<section id="que-es">
-	<h2>Qué es</h2>
-	<p><a href="https://www.totaljs.com/flow/">Total.js Flow</a> te deja dibujar en el navegador FlowStreams: diagramas de componentes conectados por mensajes, para automatización, integraciones e IoT. Esta edición mantiene todo lo que Flow ofrece y añade lo que una clase necesita: que cada alumno tenga un espacio propio, que el profesor lo vea todo y que las prácticas se repartan sin copiar y pegar.</p>
-	<div class="grid">
-		<div class="card"><b>Cada alumno, su espacio</b><span>Solo ve y toca sus FlowStreams. Ni sabiendo el identificador de otro puede abrirlo.</span></div>
-		<div class="card"><b>El profesor lo ve todo</b><span>Lista completa, resumen del aula y acceso al editor de cualquier alumno para ayudarle.</span></div>
-		<div class="card"><b>Prácticas con un clic</b><span>Prepara una plantilla y entrégala a grupos o a cada alumno.</span></div>
-		<div class="card"><b>Usuarios y grupos de OpenPlatform</b><span>Altas, bajas, clases y permisos se gestionan en un único sitio.</span></div>
+	<div>
+		<div class="code"><pre><code><span class="t-c"># One command, the whole class</span>
+docker run -d --name flowee -p <span class="t-n">8000</span>:<span class="t-n">8000</span> \
+  -v flowee-databases:/www/databases \
+  -v flowee-flowstream:/www/flowstream \
+  -v flowee-private:/www/private \
+  ghcr.io/totaljs-es/flowee</code></pre></div>
+		<div class="code"><pre><code><span class="t-c">// A teacher hands out a practice to every student</span>
+Classroom → Assign → <span class="t-s">"One copy for each student"</span>
+<span class="t-c">// Lab 1 · Ana, Lab 1 · Luis, Lab 1 · Marta…</span></code></pre></div>
 	</div>
 </section>
 
-<section id="que-cambia">
-	<h2>Qué cambia respecto a Flow</h2>
-	<div class="scroll">
-	<table>
-		<tr><th></th><th>Profesor (usuario <code>sa</code>)</th><th>Alumno</th></tr>
-		<tr><td>FlowStreams en la lista</td><td>Todos</td><td>Los de sus grupos y, si un FlowStream tiene dueño, solo los suyos</td></tr>
-		<tr><td>Crear un FlowStream</td><td>En cualquier grupo o sin grupo</td><td>Solo en sus grupos y con el permiso <code>create</code></td></tr>
-		<tr><td>Editar, ejecutar, pausar, reiniciar, exportar, borrar</td><td>Cualquiera</td><td>Solo los suyos (borrar necesita <code>remove</code>)</td></tr>
-		<tr><td>Editor y variables de un FlowStream</td><td>Cualquiera</td><td>Solo los suyos</td></tr>
-		<tr><td>Variables globales, ajustes, consola y caché del CDN</td><td>Sí</td><td>No</td></tr>
-		<tr><td>Panel Classroom (plantillas y resumen)</td><td>Sí</td><td>No</td></tr>
-		<tr><td>Plantillas</td><td>Las ve y las gestiona</td><td>No las ve, aunque estén en su grupo</td></tr>
-	</table>
+<section class="section" aria-labelledby="what">
+	<div class="section-head">
+		<h2 id="what">Flow, prepared for teaching</h2>
+		<p><a href="https://www.totaljs.com/flow/">Total.js Flow</a> lets you draw FlowStreams in the browser: diagrams of components connected by messages, for automation, integrations and IoT. This edition keeps everything Flow offers and adds what a class needs.</p>
 	</div>
-	<p>Las reglas se comprueban en el servidor, en cada acción y en la conexión del editor. Esconder un botón no es seguridad, así que aquí no se esconde: se comprueba.</p>
-	<p>Además, cada FlowStream se ejecuta en su propio proceso (<code>flowstream_worker : fork</code>), de modo que un alumno no puede parar el trabajo de los demás.</p>
+	<div class="cards">
+		<div class="card"><h3>Every student, their own place</h3><p>Students only see and touch their own FlowStreams. Not even knowing the identifier of another one lets them open it.</p></div>
+		<div class="card"><h3>The teacher sees everything</h3><p>The full list, an overview of the class and access to the editor of any student to help them.</p></div>
+		<div class="card"><h3>Practices with one click</h3><p>Prepare a template and hand it out to groups or to each student.</p></div>
+		<div class="card"><h3>Users and groups from OpenPlatform</h3><p>Sign-ups, classes and permissions are managed in one place.</p></div>
+	</div>
 </section>
 
-<section id="aula">
-	<h2>Cómo se usa en un aula</h2>
-
-	<h3>Antes de la clase (profesor)</h3>
-	<ol class="steps">
-		<li><b>Crea la práctica</b> como cualquier FlowStream: componentes, variables y una descripción con el enunciado.</li>
-		<li>En su menú elige <b>Usar como plantilla</b>. Las plantillas no las ven los alumnos.</li>
-		<li>Abre <b>Classroom</b> (en el menú de la izquierda) y pulsa <b>Asignar</b> en la plantilla.</li>
-		<li>Elige los grupos. Por defecto cada grupo recibe <b>una copia compartida</b>; con <b>Una copia para cada alumno del grupo</b> cada alumno recibe <b>la suya</b>, con el nombre <i>plantilla · alumno</i>, que solo él y tú veis.</li>
-	</ol>
-	<p>La copia conserva el diseño, los componentes, las variables y la descripción, y empieza a funcionar sola. Si asignas de nuevo, no se repiten las copias que ya existen: sirve para cuando llegan alumnos nuevos.</p>
-
-	<h3>Durante la clase</h3>
-	<ul>
-		<li><b>El alumno</b> entra por OpenPlatform, abre Flow y trabaja en su copia. Puede crear más FlowStreams en sus grupos si tiene el permiso <code>create</code>.</li>
-		<li><b>Tú</b> abres el <b>resumen</b> de Classroom: alumno, grupo, FlowStream (y de qué plantilla viene), estado, errores, mensajes y fecha del último cambio. Filtra por grupo, plantilla o texto y verás quién no ha empezado y quién está trabajando.</li>
-		<li>Desde el menú de cada fila puedes <b>abrir</b> el FlowStream de un alumno para ayudarle, <b>restaurarlo</b> desde la plantilla (su trabajo se sustituye por la plantilla) o <b>quitarlo</b>.</li>
-	</ul>
-
-	<h3>Después</h3>
-	<p>Los FlowStreams de cada alumno se quedan guardados en su espacio. Tú puedes exportarlos para revisarlos.</p>
+<section class="section" id="changes" aria-labelledby="changes-title">
+	<div class="section-head">
+		<h2 id="changes-title">What changes compared to Flow</h2>
+		<p>The rules are checked on the server, in every action and in the connection of the editor. Hiding a button is not security, so nothing is only hidden: it is checked.</p>
+	</div>
+	<div class="table"><table>
+		<thead><tr><th></th><th>Teacher (user <code>sa</code>)</th><th>Student</th></tr></thead>
+		<tbody>
+		<tr><td>FlowStreams in the list</td><td>All</td><td>Those of their groups and, if a FlowStream has an owner, only their own</td></tr>
+		<tr><td>Create a FlowStream</td><td>In any group or without a group</td><td>Only in their groups, with the <code>create</code> permission</td></tr>
+		<tr><td>Edit, run, pause, restart, export, remove</td><td>Any</td><td>Only their own (<code>remove</code> needs the permission)</td></tr>
+		<tr><td>Editor and variables of a FlowStream</td><td>Any</td><td>Only their own</td></tr>
+		<tr><td>Global variables, settings, console, CDN cache</td><td>Yes</td><td>No</td></tr>
+		<tr><td>Classroom panel (templates and overview)</td><td>Yes</td><td>No</td></tr>
+		<tr><td>Templates</td><td>Sees and manages them</td><td>Does not see them, even in their group</td></tr>
+		</tbody>
+	</table></div>
+	<p class="note top">Every FlowStream also runs in its own process (<code>flowstream_worker : fork</code>), so a student cannot stop the work of the others.</p>
 </section>
 
-<section id="docker">
-	<h2>Instalar con Docker</h2>
-	<p>La imagen está publicada en el GitHub Container Registry y se construye sola en cada cambio de <code>master</code>, para <code>amd64</code> y <code>arm64</code> (sirve en un servidor, en un Mac con Apple Silicon o en una Raspberry Pi).</p>
-	<pre><code>docker pull ghcr.io/totaljs-es/flowee
+<section class="section" id="classroom" aria-labelledby="classroom-title">
+	<div class="section-head">
+		<h2 id="classroom-title">How it is used in a classroom</h2>
+		<p>Before class you prepare the practice; during class you follow the work of everyone.</p>
+	</div>
+	<div class="steps">
+		<div class="step">
+			<h3>Build the practice</h3>
+			<p>Build the exercise as any FlowStream: components, variables and a description with the instructions. In its menu choose <strong>Use as template</strong>. Students never see templates.</p>
+		</div>
+		<div class="step">
+			<h3>Hand it out</h3>
+			<p>Open <strong>Classroom</strong> in the left menu and press <strong>Assign</strong>. Every group gets one shared copy, or choose <strong>One copy for each student</strong>: each one gets their own, named <em>template · student</em>, visible only to them and to you. Assigning again does not repeat copies: use it when new students arrive.</p>
+		</div>
+		<div class="step">
+			<h3>Follow the class</h3>
+			<p>The <strong>overview</strong> shows student, group, FlowStream, status, errors, messages and last change. Filter by group, template or text to see who has not started. From each row you can <strong>open</strong> a student’s FlowStream to help, <strong>restore</strong> it from the template or <strong>remove</strong> it.</p>
+		</div>
+	</div>
+	<p class="note top">A copy keeps the design, components, variables and description of the template, and starts running by itself. Students enter through OpenPlatform, open Flow and work on their copy; they can create more FlowStreams in their groups if they have the <code>create</code> permission.</p>
+</section>
+
+<section class="section" id="docker" aria-labelledby="docker-title">
+	<div class="section-head">
+		<h2 id="docker-title">Install it with Docker</h2>
+		<p>The image is published in the GitHub Container Registry and is built automatically for <code>amd64</code> and <code>arm64</code>: a server, an Apple Silicon Mac or a Raspberry Pi. Node.js 24, nothing else to install.</p>
+	</div>
+	<div class="steps">
+		<div class="step">
+			<h3>Run it</h3>
+			<div class="code"><pre><code>docker pull ghcr.io/totaljs-es/flowee
 docker run -d --name flowee -p 8000:8000 \
   -v flowee-databases:/www/databases \
   -v flowee-flowstream:/www/flowstream \
   -v flowee-private:/www/private \
-  ghcr.io/totaljs-es/flowee</code></pre>
-	<p>Abre <code>http://localhost:8000</code>. Los tres volúmenes guardan los ajustes, los FlowStreams de la clase y los archivos privados, para que no se pierda nada al cambiar a una imagen más nueva.</p>
-
-	<h3>Con Docker Compose</h3>
-	<pre><code>git clone https://github.com/totaljs-es/flowee.git
+  ghcr.io/totaljs-es/flowee</code></pre></div>
+			<p>Open <code>http://localhost:8000</code>. The three volumes keep the settings, the FlowStreams of the class and the private files when you move to a newer image.</p>
+		</div>
+		<div class="step">
+			<h3>Docker Compose</h3>
+			<div class="code"><pre><code>git clone https://github.com/totaljs-es/flowee.git
 cd flowee
-docker compose up -d</code></pre>
-
-	<h3>Actualizar</h3>
-	<pre><code>docker pull ghcr.io/totaljs-es/flowee
+docker compose up -d</code></pre></div>
+			<p>The same thing, with the volumes already declared.</p>
+		</div>
+		<div class="step">
+			<h3>Update it</h3>
+			<div class="code"><pre><code>docker pull ghcr.io/totaljs-es/flowee
 docker rm -f flowee
-# y vuelve a lanzar el docker run de arriba: los volúmenes conservan los datos</code></pre>
-
-	<h3>Sin Docker</h3>
-	<pre><code>git clone https://github.com/totaljs-es/flowee.git
-cd flowee
-npm install
-npm start          # puerto 8000</code></pre>
-	<p>Necesitas Node.js 24.</p>
-
-	<div class="note"><b>Cuánta máquina necesitas.</b> Cada FlowStream es un proceso independiente. Calcula la memoria para la clase más grande que trabaje a la vez y limítala con <code>flowstream_memory</code>.</div>
+<span class="t-c"># run the docker run above again</span></code></pre></div>
+			<p>The volumes keep the data. Without Docker: <code>npm install</code> and <code>npm start</code> (Node.js 24).</p>
+		</div>
+	</div>
+	<p class="note top"><strong>How much machine?</strong> Every FlowStream is an independent process. Plan the memory for the largest class working at the same time and limit it with <code>flowstream_memory</code>.</p>
 </section>
 
-<section id="openplatform">
-	<h2>Conectar con OpenPlatform</h2>
-	<p>Flow EE funciona dentro de <a href="https://docs.totaljs.com/openplatform/">OpenPlatform</a>: de allí vienen los usuarios, los grupos y los permisos.</p>
-	<ol class="steps">
-		<li><b>Registra Flow EE</b> como aplicación en OpenPlatform. Su <code>openplatform.json</code> lo sirve la propia aplicación (<code>http://tu-flow:8000/openplatform.json</code>). Anota el <i>request token</i> y el <i>response token</i> que le des.</li>
-		<li><b>Crea un grupo por cada clase</b> (o por alumno, si quieres que el trabajo de cada uno sea privado incluso sin dueños).</li>
-		<li><b>Da la aplicación</b> a los grupos de alumnos y de profesores. Los usuarios con <code>sa</code> son los profesores.</li>
-		<li>La aplicación ofrece dos permisos: <code>create</code> (crear Flows) y <code>remove</code> (quitarlos). Dale <code>create</code> a los alumnos.</li>
-		<li>Abre Flow EE por primera vez, entra con la cuenta por defecto que enseña la página de acceso y, en los ajustes, pega los dos tokens. A partir de ahí los usuarios entran por OpenPlatform.</li>
-		<li><b>Opcional:</b> activa la API pública de usuarios en OpenPlatform y pon su dirección en <code>op_groups</code>. Hace falta para la opción <i>una copia para cada alumno</i>.</li>
-	</ol>
+<section class="section" id="openplatform" aria-labelledby="op-title">
+	<div class="section-head">
+		<h2 id="op-title">Connect it to OpenPlatform</h2>
+		<p>Flow EE works inside <a href="https://docs.totaljs.com/openplatform/">OpenPlatform</a>: users, groups and permissions come from there.</p>
+	</div>
+	<div class="steps">
+		<div class="step">
+			<h3>Register the app</h3>
+			<p>Add Flow EE to OpenPlatform as an application; the app serves its own <code>openplatform.json</code> (<code>http://your-flow:8000/openplatform.json</code>). Write down the <em>request token</em> and the <em>response token</em> you give it.</p>
+		</div>
+		<div class="step">
+			<h3>Groups and permissions</h3>
+			<p>Create <strong>a group for each class</strong> and give the app to the groups of students and teachers. Users with <code>sa</code> are the teachers. Give students the <code>create</code> permission (and <code>remove</code> if they may delete).</p>
+		</div>
+		<div class="step">
+			<h3>Paste the tokens</h3>
+			<p>Open Flow EE the first time, sign in with the default account shown on its login page and paste the two tokens in the settings. From then on users enter through OpenPlatform.</p>
+		</div>
+	</div>
+	<p class="note top"><strong>Optional:</strong> enable the public users API in OpenPlatform and put its address in <code>op_groups</code>; it is needed for <em>one copy for each student</em>. With <strong>OpenPlatform in the cloud</strong> put its address in <code>sso</code> in <code>config</code>: sign-in is verified there and groups and teacher come from its session. Nobody can impersonate groups.</p>
 
-	<h3>OpenPlatform en la nube</h3>
-	<p>Si usas un OpenPlatform en la nube, pon su dirección en <code>sso</code> en el archivo <code>config</code>. El acceso se verifica allí y los grupos y el profesor (<code>sa</code>) salen de su sesión. En esta edición nadie puede hacerse pasar por otros grupos: el profesor sigue siendo el profesor.</p>
+	<div class="table"><table>
+		<thead><tr><th>Setting</th><th>What it does</th></tr></thead>
+		<tbody>
+		<tr><td><code>op_groups</code></td><td>Address of the OpenPlatform users API (<code>https://my_openplatform/users/?token=[]</code>). Needed for one copy per student; without it a template is copied once per group.</td></tr>
+		<tr><td><code>sso</code></td><td>Address of an OpenPlatform in the cloud for the sign-in.</td></tr>
+		<tr><td><code>flowstream_worker</code></td><td><code>fork</code> (default here): each FlowStream in its own process.</td></tr>
+		<tr><td><code>flowstream_memory</code></td><td>Maximum memory in MB of each FlowStream (<code>0</code> is automatic). Recommended in class.</td></tr>
+		<tr><td><code>$proxytimeout</code></td><td>Timeout of the FlowStreams proxy, in seconds.</td></tr>
+		</tbody>
+	</table></div>
 </section>
 
-<section id="configuracion">
-	<h2>Configuración</h2>
-	<p>El archivo <code>config</code> trae los ajustes habituales de Flow y estos:</p>
-	<div class="scroll">
-	<table>
-		<tr><th>Ajuste</th><th>Para qué sirve</th></tr>
-		<tr><td><code>op_groups</code></td><td>Dirección de la API de usuarios de OpenPlatform (<code>https://mi_openplatform/users/?token=[]</code>). Necesaria para <i>una copia por alumno</i>; sin ella, una plantilla se copia una vez por grupo.</td></tr>
-		<tr><td><code>sso</code></td><td>Dirección de un OpenPlatform en la nube para el acceso.</td></tr>
-		<tr><td><code>flowstream_worker</code></td><td><code>fork</code> (por defecto aquí): cada FlowStream en su proceso.</td></tr>
-		<tr><td><code>flowstream_memory</code></td><td>Memoria máxima en MB de cada FlowStream (<code>0</code> es automático). Recomendado en clase.</td></tr>
-		<tr><td><code>$proxytimeout</code></td><td>Tiempo máximo del proxy de los FlowStreams, en segundos.</td></tr>
-	</table>
+<section class="section" aria-labelledby="data-title">
+	<div class="section-head">
+		<h2 id="data-title">Your data stays with you</h2>
+		<p>The work of the students does not leave your server.</p>
+	</div>
+	<div class="cards three">
+		<div class="card"><h3>In your volumes</h3><p>FlowStreams, student copies and settings live in <code>databases</code>, <code>flowstream</code> and <code>private</code>.</p></div>
+		<div class="card"><h3>What a FlowStream adds</h3><p><code>group</code>, <code>ownerid</code>, <code>ownername</code>, <code>template</code> and <code>templateid</code>: the OpenPlatform group, the student and the template a copy comes from.</p></div>
+		<div class="card"><h3>English and Spanish</h3><p>The interface follows the language of the user in OpenPlatform.</p></div>
 	</div>
 </section>
 
-<section id="datos">
-	<h2>Datos y privacidad</h2>
-	<p>Todo se queda en tu servidor: los FlowStreams, las copias de los alumnos y los ajustes viven en los volúmenes de Docker (<code>databases</code>, <code>flowstream</code>, <code>private</code>). El trabajo de los alumnos no sale de tu servidor.</p>
-	<p>A cada FlowStream esta edición le añade estas propiedades: <code>group</code> (el grupo de OpenPlatform), <code>ownerid</code> y <code>ownername</code> (el alumno), <code>template</code> (si es plantilla) y <code>templateid</code> (la plantilla de la que viene una copia).</p>
-	<p>Los textos de Flow que no tengan traducción al español se muestran en inglés. La interfaz sigue el idioma del usuario en OpenPlatform.</p>
+<section class="section" aria-labelledby="new-title">
+	<div class="section-head">
+		<h2 id="new-title">What is new in 2.1</h2>
+	</div>
+	<div class="numbers">
+		<div class="number"><strong>11.1</strong><span>Up to date with Total.js Flow 11.1: jComponent and the fix for dragging components</span></div>
+		<div class="number"><strong>SSO</strong><span>Sign in with OpenPlatform in the cloud, with no impersonation of groups</span></div>
+		<div class="number"><strong>47</strong><span>automatic checks with a test OpenPlatform: teacher, three students, copies, restoring and privacy</span></div>
+		<div class="number"><strong>0</strong><span>bundles to maintain: the Docker image is built from the source</span></div>
+	</div>
+	<p class="note top">A template of a group is now only for teachers: the students of the group no longer see or edit it. We keep working with UPM; ideas to talk about: limits per student and automatic pause, a palette of components per course, deliveries with history, an exam mode with opening and closing dates and a read-only observer mode.</p>
 </section>
 
-<section id="novedades">
-	<h2>Novedades de la versión 2.1</h2>
-	<ul>
-		<li>Al día con Total.js Flow 11.1: jComponent actualizado y arreglo al arrastrar componentes.</li>
-		<li>Acceso con OpenPlatform en la nube (<code>sso</code>), sin que nadie pueda suplantar grupos.</li>
-		<li>Una plantilla de un grupo es solo para los profesores: los alumnos del grupo ya no la ven ni la editan.</li>
-		<li>La imagen Docker se construye desde el código, sin bundles que mantener, y guarda sus datos en <code>/www/databases</code>, <code>/www/flowstream</code> y <code>/www/private</code>.</li>
-		<li>47 comprobaciones automáticas (<code>npm test</code>) con un OpenPlatform de pruebas: profesor, tres alumnos, copias, restauración y privacidad entre compañeros.</li>
-	</ul>
-
-	<h3>Ideas para las siguientes versiones</h3>
-	<p>Seguimos trabajando con la UPM. Algunas ideas que podemos hablar: límites por alumno (FlowStreams y memoria) y pausa automática de lo que no se usa; una paleta de componentes por curso; entregas con historial y exportación de un grupo para corregirlo; modo examen con apertura y cierre por fechas; y un modo observador de solo lectura para seguir el editor de un alumno en directo.</p>
+<section class="section thanks" aria-labelledby="thanks-title">
+	<img src="assets/upm.png" alt="Universidad Politécnica de Madrid" width="100" height="77">
+	<div>
+		<h2 id="thanks-title">Thank you, UPM</h2>
+		<p>This edition was born thanks to the <a href="https://www.upm.es/internacional/" rel="noopener">Universidad Politécnica de Madrid</a> and its collaboration. Teaching with Flow, in a real classroom, is what shaped every rule of it.</p>
+	</div>
 </section>
 
 </main>
 
-<footer>
-	<p>Total.js Flow Education Edition &middot; <a href="https://github.com/totaljs-es/flowee">github.com/totaljs-es/flowee</a> &middot; <a href="https://www.totaljs.com/flow/">Total.js Flow</a> &middot; MIT</p>
-	<p>Con el agradecimiento especial a la UPM (Universidad Politécnica de Madrid).</p>
+<footer class="footer">
+	<div class="wrap">
+		<p>Total.js Flow Education Edition · <a href="https://github.com/totaljs-es/flowee" rel="noopener">github.com/totaljs-es/flowee</a> · <a href="https://www.totaljs.com/flow/" rel="noopener">Total.js Flow</a> · MIT</p>
+		<p>Made in Europe by Spanish Total.js.</p>
+	</div>
 </footer>
-
+<script src="site.js"></script>
 </body>
 </html>

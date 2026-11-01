@@ -156,4 +156,4 @@ docker run -p 8000:8000 \
 
 The three volumes keep the settings, the FlowStreams of the class and the private files when the container is replaced by a newer image. With the source code, `docker compose up` does the same.
 
-There is a page with all the information of this edition in [`docs/index.html`](docs/index.html).
+The website of this edition (English and Spanish) is in [`docs/`](docs/index.html): https://totaljs-es.github.io/flowee/
