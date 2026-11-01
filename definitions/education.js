@@ -40,6 +40,17 @@ FUNC.streamgroupallowed = function(user, group) {
 	return !!(group && user.groups && user.groups.includes(group));
 };
 
+// The data of a FlowStream for the user: the students do not get the code of the components (the teachers do)
+FUNC.streamdata = function(user, item) {
+
+	if (user && user.sa)
+		return item;
+
+	let data = Object.assign({}, item);
+	delete data.components;
+	return data;
+};
+
 // The groups that the user can choose: [{ id, name }]
 // The OpenPlatform sends the list of the groups with the session of the user. The teachers can also use the address "op_groups" of the config.
 FUNC.streamgroups = function($, callback) {

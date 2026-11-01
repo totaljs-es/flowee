@@ -32,6 +32,8 @@ This edition must work inside [OpenPlatform](https://docs.totaljs.com/openplatfo
 |---|---|---|
 | FlowStreams in the list | all | only the ones of his groups (and, if a FlowStream has an owner, only his own) |
 | Create a FlowStream | in any group, or without a group | only in his groups, and he needs the permission `create` |
+| Code of the components (read, edit, remove) | yes | no: they work with the components that the template brings |
+| Import FlowStreams | yes | no (they can duplicate their own FlowStream) |
 | Edit, run, pause, restart, export, remove | any FlowStream | only his own (`remove` needs the permission `remove`) |
 | Editor of a FlowStream | any | only his own |
 | Variables of a FlowStream | any | only his own |
@@ -103,7 +105,7 @@ npm install
 npm test
 ```
 
-The test starts a fake OpenPlatform and a temporary copy of the application, and checks the access of a teacher and of three students (the list, every action on a FlowStream, the editor, the variables, the settings, the templates, the copies for each student, the privacy between classmates and the restoring of a copy). Nothing is written in the folder of the project.
+The test starts a fake OpenPlatform and a temporary copy of the application, and checks the access of a teacher and of several students (the list, every action on a FlowStream, the editor, the variables, the settings, the templates, the copies for each student, the privacy between classmates and the restoring of a copy). Nothing is written in the folder of the project.
 
 ## Translations
 

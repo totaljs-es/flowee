@@ -20,7 +20,8 @@ function designer($) {
 	let model = {};
 	model.socket = $.query.socket;
 	model.darkmode = $.query.darkmode == '1' || $.query.darkmode == 'true';
-	model.permit = { pause: true, config: true, trigger: true, design: true, download: true, tms: true, variables: true, components: true, restart: true };
+	// The code of the components is for the teachers: the students work with the components that the templates bring
+	model.permit = { pause: true, config: true, trigger: true, design: true, download: true, tms: true, variables: true, components: !!($.user && $.user.sa), restart: true };
 	model.components = (CONF.components || 'https://cdn.totaljs.com/flowstream/webcomponents/db.json') + (CONF.components2 ? (',' + CONF.components2) : '');
 	$.view('designer', model);
 }
@@ -72,6 +73,9 @@ function index($) {
 	$.view('index', plugins);
 }
 
+// The messages of the editor that read, change or remove the code of a component (only the teachers)
+const COMPONENTCODE = { component_read: 1, component_save: 1, component_remove: 1 };
+
 function socket($) {
 
 	// The students can open only the FlowStreams of their groups: the user is known for each connection
@@ -82,6 +86,8 @@ function socket($) {
 			next();
 		else
 			client.close();
+	}, function(client, msg) {
+		return COMPONENTCODE[msg.TYPE] && !(client.user && client.user.sa) ? '@(Only the teachers can work with the code of the components)' : true;
 	});
 }
 

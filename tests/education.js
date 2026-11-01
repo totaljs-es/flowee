@@ -3,7 +3,7 @@
 //   npm install && npm test
 //
 // It starts a small fake OpenPlatform and a temporary copy of this application (nothing is written in this folder),
-// and then calls the API as a teacher and as three students. Use TOTAL5=/path/to/total5 to test another copy of the framework.
+// and then calls the API as a teacher and as several students. Use TOTAL5=/path/to/total5 to test another copy of the framework.
 
 const Fs = require('fs');
 const Os = require('os');
@@ -20,7 +20,7 @@ const BASE = 'http://127.0.0.1:' + APP_PORT;
 const md5 = (value, salt) => Crypto.createHash('md5').update(value + (salt || ''), 'utf8').digest('hex');
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-// The users of the fake OpenPlatform: a teacher (sa) and three students
+// The users of the fake OpenPlatform: a teacher (sa) and several students
 const USERS = {
 	teacher: { id: 't1', name: 'Teacher', sa: true, groups: ['g1', 'g2'], permissions: ['create', 'remove'] },
 	s1: { id: 's1', name: 'Student 1', sa: false, groups: ['g1'], permissions: ['create'] },
@@ -67,6 +67,29 @@ async function api(user, schema, data) {
 	} catch (e) {}
 	return { status: response.status, json: json, text: text.slice(0, 160) };
 }
+
+// Sends a message of the editor and returns the answer that carries the same callbackid
+function editorcall(user, id, msg) {
+	return new Promise(function(resolve) {
+		const ws = new WebSocket('ws://127.0.0.1:' + APP_PORT + '/fapi/' + id + '/?openplatform=' + encodeURIComponent(opurl(user)));
+		let timer = null;
+		msg.callbackid = 'cb1';
+		ws.onmessage = function(e) {
+			let data = null;
+			try { data = JSON.parse(e.data); } catch (err) {}
+			if (data && data.callbackid === 'cb1') {
+				clearTimeout(timer);
+				ws.close();
+				resolve(data);
+			}
+		};
+		ws.onopen = () => setTimeout(() => ws.send(JSON.stringify(msg)), 1200);
+		ws.onerror = () => resolve(null);
+		timer = setTimeout(function() { try { ws.close(); } catch (err) {} resolve(null); }, 6000);
+	});
+}
+
+const COMPONENT = '<script total>exports.name = "Test"; exports.icon = "ti ti-code"; exports.group = "Test"; exports.config = {}; exports.inputs = [{ id: "input", name: "Input" }]; exports.outputs = []; exports.make = function(instance) {};</script>';
 
 function socket(user, id) {
 	return new Promise(function(resolve) {
@@ -225,6 +248,43 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		check('a student cannot stay in the editor of other students', !ws.open && !ws.received, JSON.stringify(ws));
 		ws = await socket('teacher', two.id);
 		check('the teacher opens any editor', ws.open, JSON.stringify(ws));
+
+		// The code of the components and the import are for the teachers
+		let ans = await editorcall('s1', one.id, { TYPE: 'component_save', id: 'cheat', data: COMPONENT });
+		check('a student cannot save the code of a component', ans && ans.error, JSON.stringify(ans));
+		ans = await editorcall('teacher', one.id, { TYPE: 'component_save', id: 'tcomp', data: COMPONENT });
+		check('the teacher saves the code of a component', ans && !ans.error, JSON.stringify(ans));
+		ans = await editorcall('s1', one.id, { TYPE: 'component_read', id: 'tcomp' });
+		check('a student cannot read the code of a component', ans && ans.error && !ans.data, JSON.stringify(ans));
+		ans = await editorcall('teacher', one.id, { TYPE: 'component_read', id: 'tcomp' });
+		check('the teacher reads the code of a component', ans && !ans.error && ans.data, JSON.stringify(ans));
+		ans = await editorcall('s1', one.id, { TYPE: 'component_remove', id: 'tcomp' });
+		check('a student cannot remove a component', ans && ans.error, JSON.stringify(ans));
+
+		await sleep(2500);
+		const exported = await api('teacher', 'Streams|export', { id: one.id });
+		const exportedcomponents = exported.json && exported.json.value ? (JSON.parse(exported.json.value).components || {}) : {};
+		check('the teacher exports a FlowStream with the code of its components', 'tcomp' in exportedcomponents, JSON.stringify(Object.keys(exportedcomponents)));
+		r = await api('s1', 'Streams|export', { id: one.id });
+		check('a student exports his FlowStream without the code of the components', r.json && r.json.value && !('components' in JSON.parse(r.json.value)), r.text);
+		r = await api('s1', 'Streams|raw', { id: one.id });
+		check('a student reads the raw data without the code of the components', r.json && !('components' in r.json), r.text);
+		r = await api('s1', 'Streams|import', { data: JSON.stringify({ id: 'x', name: 'Imported', group: 'g1', design: {}, components: {} }) });
+		check('a student cannot import a FlowStream', denied(r), r.text);
+		r = await api('s3', 'Streams|import', { data: JSON.stringify({ id: 'x', name: 'Imported', group: 'g1', design: {}, components: {} }) });
+		check('a user without permissions cannot import either', denied(r), r.text);
+		r = await api('teacher', 'Streams|import', { data: JSON.stringify({ id: 'x', name: 'Imported by the teacher', group: 'g1', design: {}, components: {} }) });
+		check('the teacher imports a FlowStream', r.json && r.json.success, r.text);
+
+		r = await api('s1', 'Streams|clone', { id: one.id });
+		check('a student duplicates his own FlowStream', r.json && r.json.success, r.text);
+		await sleep(1500);
+		const mine = ((await api('s1', 'Streams')).json || []).filter(m => m.name === one.name);
+		check('the duplicate belongs to the student', mine.length === 2 && mine.every(m => m.ownerid === 's1'), JSON.stringify(mine.map(m => m.ownerid)));
+		r = await api('s2', 'Streams|clone', { id: one.id });
+		check('a student cannot duplicate the FlowStream of a classmate', denied(r), r.text);
+		r = await api('s3', 'Streams|clone', { id: one.id });
+		check('a student without the permission create cannot duplicate', denied(r), r.text);
 
 	} catch (e) {
 		check('the tests finished without an error', false, e && e.stack);

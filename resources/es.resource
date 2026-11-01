@@ -292,3 +292,4 @@ Tcczzjv                  : Copias creadas
 Tcx6gi6                  : ya existían
 T141qam7                 : Quitar de las plantillas
 T1gnzv5b                 : Usar como plantilla
+T3sfaup                  : Solo los profesores pueden trabajar con el código de los componentes

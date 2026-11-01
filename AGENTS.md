@@ -46,7 +46,7 @@ docker compose up                                      # docker-compose.yaml kee
 
 ```bash
 npm install
-npm test                      # tests/education.js: 47 checks, starts a fake OpenPlatform and a temporary copy of the app
+npm test                      # tests/education.js: 62 checks, starts a fake OpenPlatform and a temporary copy of the app
 npm start                     # port 8000
 docker build -t flowee .      # the image
 ```

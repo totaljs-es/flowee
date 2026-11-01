@@ -210,7 +210,7 @@ NEWACTION('Streams|raw', {
 	action: function($, model) {
 		let item = Flow.db[model.id];
 		if (item && FUNC.streamaccess($.user, item))
-			$.callback(item);
+			$.callback(FUNC.streamdata($.user, item));
 		else
 			$.invalid(404);
 	}
@@ -301,7 +301,7 @@ NEWACTION('Streams|export', {
 		let id = model.id;
 		let item = Flow.db[id];
 		if (item && FUNC.streamaccess($.user, item))
-			$.success(JSON.stringify(item, skip, '\t'));
+			$.success(JSON.stringify(FUNC.streamdata($.user, item), skip, '\t'));
 		else
 			$.invalid(404);
 	}
@@ -311,11 +311,8 @@ NEWACTION('Streams|import', {
 	name: 'Import FlowStream in JSON format',
 	route: '+API ? <10MB <300s',
 	input: '*data:String',
-	user: true,
+	sa: true,
 	action: function($, model) {
-
-		if (UNAUTHORIZED($, 'create'))
-			return;
 
 		let data = model.data.parseJSON(true);
 
@@ -324,24 +321,10 @@ NEWACTION('Streams|import', {
 			return;
 		}
 
-		// The imported FlowStream goes to a group of the user (a student with one group does not need to choose it)
-		if (!$.user.sa && !FUNC.streamgroupallowed($.user, data.group))
-			data.group = $.user.groups && $.user.groups.length === 1 ? $.user.groups[0] : '';
-
-		if (!$.user.sa && !data.group) {
-			$.invalid('@(Choose one of your groups)');
-			return;
-		}
-
 		data.id = 'f' + UID();
 
-		if ($.user.sa) {
-			delete data.ownerid;
-			delete data.ownername;
-		} else {
-			data.ownerid = $.user.id;
-			data.ownername = $.user.name;
-		}
+		delete data.ownerid;
+		delete data.ownername;
 
 		delete data.template;
 		delete data.templateid;
@@ -385,6 +368,38 @@ NEWACTION('Streams|import', {
 		Flow.db[data.id] = data;
 		Flow.load(data, function(err) {
 			$.callback({ success: true, value: data.id, error: err ? err.toString() : null });
+			Flow.save();
+		});
+	}
+});
+
+NEWACTION('Streams|clone', {
+	name: 'Duplicate a FlowStream',
+	route: '+API ?',
+	input: '*id:String',
+	user: true,
+	action: function($, model) {
+
+		let item = Flow.db[model.id];
+
+		if (!item || !FUNC.streamaccess($.user, item)) {
+			$.invalid(404);
+			return;
+		}
+
+		if (UNAUTHORIZED($, 'create'))
+			return;
+
+		// A student keeps the copy for himself; a teacher duplicates it without an owner
+		let opt = { name: item.name, group: item.group };
+
+		if (!$.user.sa) {
+			opt.ownerid = $.user.id;
+			opt.ownername = $.user.name;
+		}
+
+		FUNC.streamcopy(item, opt, function(err, data) {
+			$.callback({ success: !err, value: data && data.id, error: err ? err.toString() : null });
 			Flow.save();
 		});
 	}

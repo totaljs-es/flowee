@@ -15,7 +15,7 @@ Node.js 24, Total.js 5, plain JavaScript (no TypeScript). Docker image: `ghcr.io
 - [Access rules](https://raw.githubusercontent.com/totaljs-es/flowee/master/definitions/education.js): Who can work with which FlowStream
 - [Classroom plugin](https://raw.githubusercontent.com/totaljs-es/flowee/master/plugins/classroom/index.js): Practice templates, copies for groups and students
 - [OpenPlatform module](https://raw.githubusercontent.com/totaljs-es/flowee/master/modules/openplatform.js): Session and users of OpenPlatform
-- [Tests](https://raw.githubusercontent.com/totaljs-es/flowee/master/tests/education.js): A fake OpenPlatform, a teacher and three students
+- [Tests](https://raw.githubusercontent.com/totaljs-es/flowee/master/tests/education.js): A fake OpenPlatform, a teacher and several students
 
 ## Optional
 
