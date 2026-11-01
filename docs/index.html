@@ -186,6 +186,7 @@ docker rm -f flowee
 		<tr><td><code>sso</code></td><td>Address of an OpenPlatform in the cloud for the sign-in.</td></tr>
 		<tr><td><code>flowstream_worker</code></td><td><code>fork</code> (default here): each FlowStream in its own process.</td></tr>
 		<tr><td><code>flowstream_memory</code></td><td>Maximum memory in MB of each FlowStream (<code>0</code> is automatic). Recommended in class.</td></tr>
+		<tr><td><code>max_streams</code>, <code>idle_days</code></td><td>Default of the limits for each student (FlowStreams and days without work). The teacher can change them in Classroom.</td></tr>
 		<tr><td><code>$proxytimeout</code></td><td>Timeout of the FlowStreams proxy, in seconds.</td></tr>
 		</tbody>
 	</table></div>
@@ -197,12 +198,14 @@ docker rm -f flowee
 		<h2 id="included-title">Everything included</h2>
 		<p>A complete classroom environment, ready to run on your own server.</p>
 	</div>
-	<div class="cards three">
+	<div class="cards">
 		<div class="card"><h3>Roles and groups</h3><p>Teacher and students, organised in the groups of OpenPlatform. Each student works only in their own space.</p></div>
 		<div class="card"><h3>Practice templates</h3><p>Hand out an exercise to a whole group or give every student their own copy, and restore it whenever you need.</p></div>
 		<div class="card"><h3>Class overview</h3><p>See who has started, who has errors and who needs help, and open any student’s FlowStream to guide them.</p></div>
 		<div class="card"><h3>Component palette</h3><p>Choose the components that each group can use. Students cannot edit or add components, so nobody breaks or copies them.</p></div>
+		<div class="card"><h3>Limits for each student</h3><p>Set how many FlowStreams each student can have, and pause automatically what they stop using.</p></div>
 		<div class="card"><h3>Protected work</h3><p>Students cannot import FlowStreams or read the code of the components. Every FlowStream runs in its own process.</p></div>
+		<div class="card"><h3>Easy to deploy</h3><p>A ready Docker image for amd64 and arm64, configured with environment variables: no files to edit.</p></div>
 		<div class="card"><h3>Your server, your data</h3><p>Everything stays on your own infrastructure. English and Spanish interface, and sign-in with OpenPlatform on your server or in the cloud.</p></div>
 	</div>
 </section>

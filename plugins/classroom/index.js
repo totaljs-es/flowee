@@ -27,7 +27,7 @@ NEWACTION('Classroom', {
 					students.push({ id: m.id, name: m.name, groups: m.groups || [] });
 			}
 
-			$.callback({ groups: groups, students: students, hasusers: !err && op.users.length > 0 });
+			$.callback({ groups: groups, students: students, hasusers: !err && op.users.length > 0, limits: FUNC.limits() });
 		});
 	}
 });
@@ -244,5 +244,19 @@ NEWACTION('Classroom|palette_save', {
 			Flow.emit('save');
 			$.callback({ success: true, components: count, updated: jobs.length });
 		});
+	}
+});
+
+
+// Limits for each student: how many FlowStreams he can create and the days without work before they are paused (0 is without limit)
+NEWACTION('Classroom|limits_save', {
+	name: 'Save the limits for the students',
+	route: '+API ?',
+	input: 'maxstreams:Number, idledays:Number',
+	sa: true,
+	audit: true,
+	action: function($, model) {
+		PREF.set('limits', { maxstreams: Math.max(0, Math.floor(model.maxstreams || 0)), idledays: Math.max(0, model.idledays || 0) });
+		$.callback({ success: true, paused: FUNC.idlepause() });
 	}
 });

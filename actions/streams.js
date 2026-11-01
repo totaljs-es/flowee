@@ -16,7 +16,7 @@ NEWACTION('Streams', {
 				if (!FUNC.streamaccess($.user, item))
 					continue;
 				let instance = Flow.instances[key];
-				arr.push({ id: item.id, name: item.name, group: item.group, template: !!item.template, templateid: item.templateid, ownerid: item.ownerid, ownername: item.ownername, author: item.author, reference: item.reference, url: item.url, color: item.color, icon: item.icon, readme: item.readme, dtcreated: item.dtcreated, dtupdated: item.dtupdated, errors: false, size: item.size || 0, version: item.version, proxypath: item.proxypath ? (CONF.default_root ? (CONF.default_root + item.proxypath.substring(1)) : item.proxypath) : '', memory: item.memory, stats: instance ? instance.flow.stats : {} });
+				arr.push({ id: item.id, name: item.name, group: item.group, template: !!item.template, autopaused: !!item.autopaused, templateid: item.templateid, ownerid: item.ownerid, ownername: item.ownername, author: item.author, reference: item.reference, url: item.url, color: item.color, icon: item.icon, readme: item.readme, dtcreated: item.dtcreated, dtupdated: item.dtupdated, errors: false, size: item.size || 0, version: item.version, proxypath: item.proxypath ? (CONF.default_root ? (CONF.default_root + item.proxypath.substring(1)) : item.proxypath) : '', memory: item.memory, stats: instance ? instance.flow.stats : {} });
 			}
 		}
 		$.callback(arr);
@@ -65,6 +65,10 @@ NEWACTION('Streams|save', {
 		if (init) {
 			if (UNAUTHORIZED($, 'create'))
 				return;
+			if (!FUNC.streamlimit($.user)) {
+				$.invalid('@(You have reached the limit of FlowStreams)' + ': ' + FUNC.limits().maxstreams);
+				return;
+			}
 		} else if (!FUNC.streamaccess($.user, model.id)) {
 			$.invalid(Flow.db[model.id] ? 401 : 404);
 			return;
@@ -273,6 +277,14 @@ NEWACTION('Streams|pause', {
 				if (instance.flow.stats && is != null)
 					instance.flow.stats.paused = is;
 				instance.pause(is);
+
+				// A student that resumes his FlowStream starts the count of the days without work again
+				if (!is && !$.user.sa) {
+					item.dtresumed = NOW;
+					delete item.autopaused;
+					Flow.emit('save');
+				}
+
 				$.audit();
 				$.success();
 			} else
@@ -289,8 +301,14 @@ NEWACTION('Streams|restart', {
 	user: true,
 	audit: true,
 	action: function($, model) {
-		if (FUNC.streamaccess($.user, model.id) && Flow.restart(model.id))
+		if (FUNC.streamaccess($.user, model.id) && Flow.restart(model.id)) {
+			let item = Flow.db[model.id];
+			if (item && !$.user.sa) {
+				item.dtresumed = NOW;
+				delete item.autopaused;
+			}
 			$.success();
+		}
 		else
 			$.invalid(404);
 	}
@@ -394,8 +412,13 @@ NEWACTION('Streams|clone', {
 		if (UNAUTHORIZED($, 'create'))
 			return;
 
+		if (!FUNC.streamlimit($.user)) {
+			$.invalid('@(You have reached the limit of FlowStreams)' + ': ' + FUNC.limits().maxstreams);
+			return;
+		}
+
 		// A student keeps the copy for himself; a teacher duplicates it without an owner
-		let opt = { name: item.name, group: item.group };
+		let opt = { name: item.name, group: item.group, plain: true };
 
 		if (!$.user.sa) {
 			opt.ownerid = $.user.id;

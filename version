@@ -8,6 +8,7 @@ Version: 2.1
 - sign in with OpenPlatform cloud (`sso` in the config): the groups and the teacher come from OpenPlatform, nobody can impersonate groups
 - the students cannot read, edit or remove the code of the components, and they cannot import FlowStreams (they can duplicate their own); a FlowStream that a student exports or reads does not carry the code of the components
 - every setting of the config can be given as an environment variable (FLOWEE_ plus the key in upper case), also the tokens of OpenPlatform; the docker-compose.yaml lists them
+- limits for each student (Classroom): the number of FlowStreams that he can have, and the days without work before his FlowStreams are paused (he can resume them)
 - palette of components for each group (Classroom): the teacher chooses the components that the FlowStreams of a group have, the students get them without being able to change their code
 - a template of a group is only for the teachers: the students of the group do not see it
 - the Docker image runs from the source: there are no bundles to maintain

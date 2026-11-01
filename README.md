@@ -77,6 +77,15 @@ The students cannot add or edit components, so you decide which ones each group 
 
 A component that you remove from a palette stays in the FlowStreams that already have it. The palettes are kept in the preferences of the application (`palettes`).
 
+### Limits for each student
+
+In **Classroom**, *Limits for each student* sets two things (0 is without limit):
+
+- **FlowStreams for each student:** how many FlowStreams a student can create or duplicate. The copies that you hand out from a template are not counted, and the teachers have no limit. At the limit the student gets a clear message.
+- **Days without work before pausing:** the running FlowStreams of a student that he has not edited, resumed or restarted for those days are paused (every minute the application looks for them). The student can resume them from the list, and the overview of Classroom shows them as *Inactive*.
+
+The memory of each FlowStream is limited with `flowstream_memory`. `FLOWEE_MAX_STREAMS` and `FLOWEE_IDLE_DAYS` give the default values until the teacher saves them in the panel.
+
 ### Restore, open and remove
 
 From the menu of each row the teacher can **open** the FlowStream of a student to help him, **restore** it from the template (the work of the student is replaced by the template) or **remove** it.
@@ -106,6 +115,7 @@ Every setting can also be given as an environment variable: `FLOWEE_` plus the k
 | `FLOWEE_FLOWSTREAM_WORKER`, `FLOWEE_FLOWSTREAM_MEMORY` | `flowstream_worker`, `flowstream_memory` |
 | `FLOWEE_PROXYTIMEOUT` | `$proxytimeout` |
 | `FLOWEE_NAME` | `name` |
+| `FLOWEE_MAX_STREAMS`, `FLOWEE_IDLE_DAYS` | the default of the limits for each student (see Limits for each student) |
 
 ```bash
 docker run -p 8000:8000 -e FLOWEE_SSO=https://my.openplatform.cloud -e FLOWEE_FLOWSTREAM_MEMORY=512 ghcr.io/totaljs-es/flowee
@@ -143,7 +153,6 @@ The test starts a fake OpenPlatform and a temporary copy of the application, and
 
 We are still working on additional tasks in collaboration with UPM. Some ideas to talk about:
 
-- Limits for each student (number of FlowStreams, memory) and automatic pause of the FlowStreams that are not used.
 - Deliveries: snapshots of the work, history of changes and export of a group to grade it.
 - Exam mode: open and close the access by dates.
 - Read-only observer mode to follow the editor of a student live.

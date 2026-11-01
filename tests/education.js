@@ -325,6 +325,44 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		r = await api('s3', 'Streams|clone', { id: one.id });
 		check('a student without the permission create cannot duplicate', denied(r), r.text);
 
+		// Limits for each student
+		r = await api('s1', 'Classroom');
+		check('a student cannot read the panel to see the limits', denied(r), r.text);
+		r = await api('s1', 'Classroom|limits_save', { maxstreams: 1, idledays: 0 });
+		check('a student cannot change the limits', denied(r), r.text);
+		const owned = ((await api('s1', 'Streams')).json || []).filter(m => m.ownerid === 's1' && !m.templateid).length;
+		r = await api('teacher', 'Classroom|limits_save', { maxstreams: owned, idledays: 0 });
+		check('the teacher sets the limit of FlowStreams for the students', r.json && r.json.success, r.text);
+		r = await api('teacher', 'Classroom');
+		check('the panel returns the limits', r.json && r.json.limits && r.json.limits.maxstreams === owned, r.text);
+		r = await api('s1', 'Streams|save', { name: 'One more', group: 'g1', icon: 'ti ti-microchip' });
+		check('a student at the limit cannot create a FlowStream', denied(r) && /limit/i.test(r.text), r.text);
+		r = await api('s1', 'Streams|clone', { id: one.id });
+		check('a student at the limit cannot duplicate a FlowStream', denied(r) && /limit/i.test(r.text), r.text);
+		r = await api('s2', 'Streams|save', { name: 'Other student under the limit', group: 'g2', icon: 'ti ti-microchip' });
+		check('a student under the limit still creates FlowStreams', r.json && r.json.success, r.text);
+		r = await api('teacher', 'Streams|save', { name: 'Teacher without limit', icon: 'ti ti-microchip' });
+		check('the teacher has no limit', r.json && r.json.success, r.text);
+		r = await api('teacher', 'Classroom|limits_save', { maxstreams: 0, idledays: 0 });
+		r = await api('s1', 'Streams|save', { name: 'One more', group: 'g1', icon: 'ti ti-microchip' });
+		check('without a limit the student creates FlowStreams again', r.json && r.json.success, r.text);
+
+		// The FlowStreams without work are paused
+		await sleep(2000);
+		const running = async name => ((await api('teacher', 'Streams')).json || []).find(m => m.name === name) || {};
+		check('the FlowStream of a student is running before the limit of days', !(await running('With the palette')).stats.paused, 'paused');
+		r = await api('teacher', 'Classroom|limits_save', { maxstreams: 0, idledays: 0.00001 });
+		check('the teacher sets the days without work', r.json && r.json.success && r.json.paused > 0, r.text);
+		await sleep(1500);
+		let idle = await running('With the palette');
+		check('the FlowStream of a student without work is paused', idle.stats && idle.stats.paused && idle.autopaused, JSON.stringify(idle.stats));
+		check('the FlowStreams of the teacher are not paused', !(await running('Library')).stats.paused, 'paused');
+		r = await api('s1', 'Streams|pause', { id: withpalette.id, is: false });
+		check('the student resumes his FlowStream', r.json && r.json.success, r.text);
+		idle = await running('With the palette');
+		check('the resumed FlowStream is running and no longer marked as inactive', idle.stats && !idle.stats.paused && !idle.autopaused, JSON.stringify(idle.stats));
+		await api('teacher', 'Classroom|limits_save', { maxstreams: 0, idledays: 0 });
+
 	} catch (e) {
 		check('the tests finished without an error', false, e && e.stack);
 	}

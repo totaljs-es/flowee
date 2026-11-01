@@ -146,6 +146,79 @@ FUNC.paletteapply = function(item) {
 	return changed;
 };
 
+// Limits for each student: the number of FlowStreams that he can have and the days without work before his FlowStreams are paused.
+// The teachers set them in Classroom; FLOWEE_MAX_STREAMS and FLOWEE_IDLE_DAYS are the defaults. 0 means without limit.
+FUNC.limits = function() {
+
+	let saved = PREF.limits || {};
+	let number = (value, name) => value != null && !isNaN(+value) ? +value : (+FUNC.env(name) || 0);
+
+	return { maxstreams: number(saved.maxstreams, 'max_streams'), idledays: number(saved.idledays, 'idle_days') };
+};
+
+// The FlowStreams that a student has created (the copies of the templates are not counted)
+FUNC.studentstreams = function(userid) {
+
+	let count = 0;
+
+	for (let key in Flow.db) {
+		let item = Flow.db[key];
+		if (key !== 'variables' && item && item.ownerid === userid && !item.templateid && !item.template)
+			count++;
+	}
+
+	return count;
+};
+
+// Can the student create one more FlowStream? The teachers have no limit.
+FUNC.streamlimit = function(user) {
+
+	if (!user || user.sa)
+		return true;
+
+	let max = FUNC.limits().maxstreams;
+	return !max || FUNC.studentstreams(user.id) < max;
+};
+
+// Pauses the running FlowStreams of the students that have not been worked on for the days of the limit. It returns how many were paused.
+FUNC.idlepause = function() {
+
+	let days = FUNC.limits().idledays;
+
+	if (!days)
+		return 0;
+
+	let limit = days * 86400000;
+	let paused = 0;
+
+	for (let key in Flow.db) {
+
+		let item = Flow.db[key];
+		let instance = Flow.instances[key];
+
+		if (key === 'variables' || !item || !item.ownerid || item.template || !instance || !instance.flow || !instance.flow.stats || instance.flow.stats.paused)
+			continue;
+
+		let last = Math.max(item.dtupdated ? +new Date(item.dtupdated) : 0, item.dtresumed ? +new Date(item.dtresumed) : 0, item.dtcreated ? +new Date(item.dtcreated) : 0);
+
+		if (NOW - last > limit) {
+			instance.flow.stats.paused = true;
+			instance.pause(true);
+			item.autopaused = NOW;
+			paused++;
+		}
+	}
+
+	paused && Flow.emit('save');
+
+	return paused;
+};
+
+// Every minute, the FlowStreams without work of the students are paused
+ON('service', function() {
+	FUNC.idlepause();
+});
+
 // Makes a copy of a FlowStream for a group and, optionally, for one student
 FUNC.streamcopy = function(source, opt, callback) {
 
@@ -162,7 +235,7 @@ FUNC.streamcopy = function(source, opt, callback) {
 	data.group = opt.group;
 	data.ownerid = opt.ownerid || undefined;
 	data.ownername = opt.ownername || undefined;
-	data.templateid = source.id;
+	data.templateid = opt.plain ? undefined : source.id;
 	data.proxypath = '';
 	data.dtcreated = NOW;
 	data.env = PREF.env || 'dev';

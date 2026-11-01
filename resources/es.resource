@@ -299,3 +299,13 @@ Tso1tsn                  : Elige un grupo
 Tpehjnt                  : Guardar la paleta
 T1fr9ptt                  : Se ha guardado la paleta.
 T91jqmw                  : Todavía no hay componentes. Añádelos a un FlowStream tuyo.
+T5z435n                  : Límites para cada alumno
+Trxz5i4                  : 0 es sin límite. Los FlowStreams de un alumno en los que no ha trabajado durante los días que indiques se pausan; él puede reanudarlos.
+T9fylfy                  : FlowStreams para cada alumno
+T16zmmm8                 : Días sin trabajar antes de pausar
+T14aih3e                 : Guardar los límites
+Tsiia9o                  : Se han guardado los límites.
+T1485w4p                 : FlowStreams pausados
+Tr8hfwv                  : Pausado porque el alumno no ha trabajado en él
+T1h67ij                  : Inactivo
+Tl4lw39                  : Has llegado al límite de FlowStreams

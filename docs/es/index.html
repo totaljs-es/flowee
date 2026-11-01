@@ -186,6 +186,7 @@ docker rm -f flowee
 		<tr><td><code>sso</code></td><td>Dirección de un OpenPlatform en la nube para el acceso.</td></tr>
 		<tr><td><code>flowstream_worker</code></td><td><code>fork</code> (por defecto aquí): cada FlowStream en su proceso.</td></tr>
 		<tr><td><code>flowstream_memory</code></td><td>Memoria máxima en MB de cada FlowStream (<code>0</code> es automático). Recomendado en clase.</td></tr>
+		<tr><td><code>max_streams</code>, <code>idle_days</code></td><td>Valor por defecto de los límites para cada alumno (FlowStreams y días sin trabajar). El profesor puede cambiarlos en Classroom.</td></tr>
 		<tr><td><code>$proxytimeout</code></td><td>Tiempo máximo del proxy de los FlowStreams, en segundos.</td></tr>
 		</tbody>
 	</table></div>
@@ -197,12 +198,14 @@ docker rm -f flowee
 		<h2 id="included-title">Todo lo que incluye</h2>
 		<p>Un entorno de aula completo, listo para funcionar en tu propio servidor.</p>
 	</div>
-	<div class="cards three">
+	<div class="cards">
 		<div class="card"><h3>Roles y grupos</h3><p>Profesor y alumnos, organizados en los grupos de OpenPlatform. Cada alumno trabaja solo en su espacio.</p></div>
 		<div class="card"><h3>Plantillas de prácticas</h3><p>Reparte un ejercicio a un grupo entero o da a cada alumno su propia copia, y restáuralo cuando lo necesites.</p></div>
 		<div class="card"><h3>Resumen de la clase</h3><p>Mira quién ha empezado, quién tiene errores y quién necesita ayuda, y abre el FlowStream de cualquier alumno para guiarle.</p></div>
 		<div class="card"><h3>Paleta de componentes</h3><p>Elige los componentes que puede usar cada grupo. Los alumnos no pueden editar ni añadir componentes, así que nadie los estropea ni los copia.</p></div>
+		<div class="card"><h3>Límites para cada alumno</h3><p>Decide cuántos FlowStreams puede tener cada alumno y pausa automáticamente lo que dejan de usar.</p></div>
 		<div class="card"><h3>Trabajo protegido</h3><p>Los alumnos no pueden importar FlowStreams ni leer el código de los componentes. Cada FlowStream se ejecuta en su propio proceso.</p></div>
+		<div class="card"><h3>Fácil de desplegar</h3><p>Una imagen Docker lista para amd64 y arm64, que se configura con variables de entorno: sin archivos que editar.</p></div>
 		<div class="card"><h3>Tu servidor, tus datos</h3><p>Todo se queda en tu propia infraestructura. Interfaz en español e inglés, y acceso con OpenPlatform en tu servidor o en la nube.</p></div>
 	</div>
 </section>
