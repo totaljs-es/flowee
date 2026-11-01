@@ -17,6 +17,10 @@ FUNC.streamaccess = function(user, item) {
 	if (user.sa)
 		return true;
 
+	// A template is only for the teachers, even when it belongs to a group
+	if (item.template)
+		return false;
+
 	if (!item.group || !user.groups || !user.groups.includes(item.group))
 		return false;
 

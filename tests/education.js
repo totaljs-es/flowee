@@ -196,6 +196,15 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		r = await api('s2', 'Streams');
 		check('a student of another group sees only the shared copy and his work', (r.json || []).map(m => m.name).sort().join('|') === 'Lab 1 · Class B|Student 2 flow', r.text);
 
+		r = await api('teacher', 'Streams|save', { name: 'Template of a group', group: 'g1', icon: 'ti ti-microchip' });
+		await sleep(1000);
+		const gt = ((await api('teacher', 'Streams')).json || []).find(m => m.name === 'Template of a group') || {};
+		await api('teacher', 'Classroom|template', { id: gt.id, is: true });
+		r = await api('s1', 'Streams');
+		check('a template of a group is not shown to the students', !(r.json || []).some(m => m.name === 'Template of a group'), r.text);
+		r = await api('s1', 'Streams|read', { id: gt.id });
+		check('a student cannot read a template of his group', denied(r), r.text);
+
 		const copy = ((await api('s1', 'Streams')).json || []).find(m => m.name === 'Lab 1 · Student 1') || {};
 		r = await api('s1', 'Variables|save', { id: copy.id, data: { answer: 42 } });
 		check('a student works in his copy', r.json && r.json.success, r.text);
