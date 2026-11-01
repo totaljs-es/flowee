@@ -863,6 +863,10 @@
 				if (user.sa || user.permissions.includes('create'))
 					opt.items.push({ id: 'clone', name: '@(Clone)', icon: 'ti ti-clone' });
 
+				// The students hand in their work: the teacher gets a frozen copy
+				if (!user.sa && !item.template)
+					opt.items.push({ id: 'deliver', name: '@(Deliver)', icon: 'ti ti-send green' });
+
 				if (user.sa)
 					opt.items.push({ id: 'template', name: item.template ? '@(Remove from templates)' : '@(Use as template)', icon: 'ti ti-copy' });
 
@@ -890,6 +894,14 @@
 								parent.find('figure[data-id="{0}"]'.format(id)).tclass('paused', !paused);
 								if (item.stats)
 									item.stats.paused = !paused;
+							});
+							break;
+						case 'deliver':
+							SETTER('approve/show', '@(Do you want to deliver "{0}" to the teacher? The teacher will get a copy of your work as it is now; you can go on working and deliver again.)'.format(item.name), '"ti ti-send" @(Deliver)', function() {
+								exports.tapi('Streams|deliver @showloading ERROR', { id: id }, function(response) {
+									SETTER('loading/hide', 300);
+									SETTER('notify/success', '@(Delivered)' + ' #' + response.number);
+								});
 							});
 							break;
 						case 'restart':

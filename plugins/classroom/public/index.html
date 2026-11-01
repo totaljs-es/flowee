@@ -131,6 +131,43 @@
 				</script>
 			</ui-bind>
 
+			<div class="caption m" style="margin-top:24px"><label><i class="ti ti-send"></i>@(Deliveries)</label></div>
+			<div class="help m">@(The work that the students have delivered. Every delivery is a frozen copy: the student can go on working without changing it. The filters above apply here too.)</div>
+			<div class="m"><button class="exec cr-btn sec" data-exec="?/deliveriesexport"><i class="ti ti-download"></i>@(Download the last deliveries)</button></div>
+
+			<ui-bind path="?.drows" config="template" class="block">
+				<script type="text/html">
+					{{ if value && value.length }}
+					<table class="cr-table">
+						<thead>
+							<tr>
+								<th>@(Student)</th>
+								<th>@(Group)</th>
+								<th>@(FlowStream)</th>
+								<th>@(Delivery)</th>
+								<th>@(Date)</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{{ foreach m in value }}
+							<tr>
+								<td><b>{{ m.ownername }}</b></td>
+								<td>{{ m.groupname }}</td>
+								<td>{{ m.name }}{{ if m.templatename }}<div class="help"><i class="ti ti-copy"></i> {{ m.templatename }}</div>{{ fi }}</td>
+								<td><span class="cr-badge">#{{ m.number }}</span>{{ if m.latest }} <span class="help">@(Last)</span>{{ fi }}</td>
+								<td>{{ m.dtcreated | format('yyyy-MM-dd HH:mm') }}</td>
+								<td style="text-align:right"><span class="exec" data-exec="?/deliveryoptions" data-id="{{ m.id }}"><i class="ti ti-ellipsis-v"></i></span></td>
+							</tr>
+							{{ end }}
+						</tbody>
+					</table>
+					{{ else }}
+					<div class="help">@(There are no deliveries yet.)</div>
+					{{ fi }}
+				</script>
+			</ui-bind>
+
 		</div>
 	</ui-component>
 </ui-plugin>
@@ -195,6 +232,11 @@
 					rows.quicksort('ownername, name');
 					templates.quicksort('name');
 
+					exports.tapi('Classroom|deliveries ERROR', function(response) {
+						exports.set('deliveries', response || []);
+						exports.filter();
+					});
+
 					exports.tapi('Classroom|palette ERROR', function(response) {
 						exports.set('pool', response.pool || []);
 						exports.set('palettes', response.palettes || {});
@@ -230,6 +272,26 @@
 			}
 
 			exports.set('rows', output);
+
+			// The deliveries follow the same filters
+			var names = {};
+			for (var g of (model.groups || []))
+				names[g.id] = g.name;
+
+			var drows = [];
+
+			for (var d of (model.deliveries || [])) {
+				if (model.fgroup && d.group !== model.fgroup)
+					continue;
+				if (model.ftemplate && d.templateid !== model.ftemplate)
+					continue;
+				if (search && (d.name + ' ' + (d.ownername || '')).toLowerCase().indexOf(search) === -1)
+					continue;
+				d.groupname = d.group ? (names[d.group] || d.group) : '';
+				drows.push(d);
+			}
+
+			exports.set('drows', drows);
 		};
 
 		// The components of the pool, selected when the palette of the group has them
@@ -307,6 +369,56 @@
 
 		exports.open = function(el) {
 			EXEC('common/open', $('<div data-id="{0}"></div>'.format(ATTRD(el))));
+		};
+
+		exports.deliveriesexport = function() {
+			var model = exports.model;
+			exports.tapi('Classroom|delivery_export ERROR @showloading', { group: model.fgroup || '', templateid: model.ftemplate || '' }, function(response) {
+				SETTER('loading/hide', 300);
+				var name = 'deliveries' + (model.fgroup && model.groups ? '-' + (model.groups.findItem('id', model.fgroup) || {}).name : '') + '.json';
+				SETTER('filesaver/save', name.replace(/[^a-zA-Z0-9\-\.]/g, '_'), new Blob([response.value], { type: 'text/plain; charset=utf-8' }));
+			});
+		};
+
+		exports.deliveryoptions = function(el) {
+
+			var model = exports.model;
+			var id = ATTRD(el);
+			var item = model.deliveries.findItem('id', id);
+			var opt = {};
+
+			opt.element = el;
+			opt.align = 'right';
+			opt.items = [];
+			opt.items.push({ id: 'open', name: '@(Open as a FlowStream)', icon: 'ti ti-pencil' });
+			opt.items.push({ id: 'download', name: '@(Download)', icon: 'ti ti-download' });
+			opt.items.push('-');
+			opt.items.push({ id: 'remove', name: '@(Remove)', icon: 'ti ti-remove red' });
+
+			opt.callback = function(selected) {
+				switch (selected.id) {
+					case 'open':
+						exports.tapi('Classroom|delivery_open ERROR @showloading', { id: id }, function(response) {
+							SETTER('loading/hide', 300);
+							exports.refresh();
+							SETTER('notifybar/success', '@(The delivery is now a FlowStream of yours, without a group.)');
+						});
+						break;
+					case 'download':
+						exports.tapi('Classroom|delivery_download ERROR @showloading', { id: id }, function(response) {
+							SETTER('loading/hide', 300);
+							SETTER('filesaver/save', (item.ownername + '-' + item.name + '-' + item.number + '.json').replace(/[^a-zA-Z0-9\-\.]/g, '_'), new Blob([response.value], { type: 'text/plain; charset=utf-8' }));
+						});
+						break;
+					case 'remove':
+						SETTER('approve/show', '@(Are you sure you want to remove this delivery?)', '"ti ti-remove" @(Remove)', function() {
+							exports.tapi('Classroom|delivery_remove ERROR @showloading', { id: id }, () => exports.refresh());
+						});
+						break;
+				}
+			};
+
+			SETTER('menu/show', opt);
 		};
 
 		exports.options = function(el) {

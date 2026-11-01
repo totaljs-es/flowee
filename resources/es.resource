@@ -309,3 +309,16 @@ T1485w4p                 : FlowStreams pausados
 Tr8hfwv                  : Pausado porque el alumno no ha trabajado en él
 T1h67ij                  : Inactivo
 Tl4lw39                  : Has llegado al límite de FlowStreams
+T1h69p1h                 : Entregar
+T4s13mg                  : ¿Quieres entregar "{0}" al profesor? El profesor recibirá una copia de tu trabajo tal como está ahora; puedes seguir trabajando y volver a entregar.
+Tt4u2jo                  : Entregado
+T1esjmb6                 : Entregas
+T1ce8pck                 : El trabajo que han entregado los alumnos. Cada entrega es una copia congelada: el alumno puede seguir trabajando sin cambiarla. Los filtros de arriba también se aplican aquí.
+T1p970ad                 : Descargar las últimas entregas
+Teoraxg                  : Entrega
+T19hvy                   : Fecha
+T1elrq                   : Última
+Tcyn1b1                  : Todavía no hay entregas.
+Tjqn091                  : Abrir como FlowStream
+T1ad33hd                 : La entrega es ahora un FlowStream tuyo, sin grupo.
+Tpe1kwh                  : ¿Seguro que quieres quitar esta entrega?

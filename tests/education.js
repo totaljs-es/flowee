@@ -363,6 +363,47 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		check('the resumed FlowStream is running and no longer marked as inactive', idle.stats && !idle.stats.paused && !idle.autopaused, JSON.stringify(idle.stats));
 		await api('teacher', 'Classroom|limits_save', { maxstreams: 0, idledays: 0 });
 
+		// Deliveries
+		r = await api('s1', 'Streams|deliver', { id: one.id });
+		check('a student delivers his FlowStream', r.json && r.json.success && r.json.number === 1, r.text);
+		r = await api('s2', 'Streams|deliver', { id: one.id });
+		check('a student cannot deliver the FlowStream of a classmate', denied(r), r.text);
+		r = await api('s1', 'Variables|save', { id: one.id, data: { answer: 7 } });
+		await sleep(500);
+		r = await api('s1', 'Streams|deliver', { id: one.id });
+		check('a second delivery of the same FlowStream is number 2', r.json && r.json.success && r.json.number === 2, r.text);
+		r = await api('s1', 'Classroom|deliveries');
+		check('a student cannot list the deliveries', denied(r), r.text);
+		r = await api('teacher', 'Classroom|deliveries');
+		const mine1 = (r.json || []).filter(m => m.streamid === one.id);
+		check('the teacher sees both deliveries with their owner and the last one marked', mine1.length === 2 && mine1.every(m => m.ownerid === 's1' && m.ownername === 'Student 1') && mine1.find(m => m.number === 2).latest && !mine1.find(m => m.number === 1).latest, r.text);
+		const first = mine1.find(m => m.number === 1);
+		const second = mine1.find(m => m.number === 2);
+		r = await api('teacher', 'Classroom|delivery_download', { id: first.id });
+		const frozen1 = r.json && r.json.value ? JSON.parse(r.json.value) : {};
+		r = await api('teacher', 'Classroom|delivery_download', { id: second.id });
+		const frozen2 = r.json && r.json.value ? JSON.parse(r.json.value) : {};
+		check('a delivery is a frozen copy: the first one does not have the later work', frozen1.id === one.id && JSON.stringify(frozen1.variables || {}).indexOf('7') === -1 && JSON.stringify(frozen2.variables || {}).indexOf('7') !== -1, JSON.stringify([frozen1.variables, frozen2.variables]));
+		r = await api('s1', 'Classroom|delivery_download', { id: first.id });
+		check('a student cannot download a delivery', denied(r), r.text);
+		r = await api('teacher', 'Classroom|delivery_open', { id: second.id });
+		check('the teacher opens a delivery as a FlowStream', r.json && r.json.success && r.json.value, r.text);
+		await sleep(1500);
+		const opened = ((await api('teacher', 'Streams')).json || []).find(m => m.id === (r.json && r.json.value)) || {};
+		check('the opened delivery has no group and no owner', opened.id && !opened.group && !opened.ownerid && !opened.templateid, JSON.stringify(opened).slice(0, 160));
+		check('the students do not see the opened delivery', !((await api('s1', 'Streams')).json || []).some(m => m.id === opened.id), 'visible');
+		r = await api('teacher', 'Classroom|delivery_export', { group: 'g1' });
+		const exportedd = r.json && r.json.value ? JSON.parse(r.json.value) : { deliveries: [] };
+		check('the teacher exports the last deliveries of a group', exportedd.deliveries.length >= 1 && exportedd.deliveries.every(m => m.delivery.group === 'g1') && exportedd.deliveries.find(m => m.delivery.streamid === one.id).delivery.number === 2, r.text);
+		r = await api('s1', 'Classroom|delivery_export', { group: 'g1' });
+		check('a student cannot export deliveries', denied(r), r.text);
+		r = await api('teacher', 'Classroom|delivery_remove', { id: first.id });
+		check('the teacher removes a delivery', r.json && r.json.success, r.text);
+		r = await api('teacher', 'Classroom|deliveries');
+		check('the other delivery stays', (r.json || []).filter(m => m.streamid === one.id).length === 1, r.text);
+		r = await api('teacher', 'Classroom|delivery_download', { id: first.id });
+		check('a removed delivery cannot be downloaded', denied(r), r.text);
+
 	} catch (e) {
 		check('the tests finished without an error', false, e && e.stack);
 	}

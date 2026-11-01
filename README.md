@@ -77,6 +77,18 @@ The students cannot add or edit components, so you decide which ones each group 
 
 A component that you remove from a palette stays in the FlowStreams that already have it. The palettes are kept in the preferences of the application (`palettes`).
 
+### Deliveries
+
+A student hands in a FlowStream with **Deliver** in its menu. The server keeps a **frozen copy** (design, components and variables) with its date and number: the student can go on working and deliver again, and the copy that the teacher has never changes. The last 20 deliveries of each FlowStream are kept, as files in `databases/deliveries/` (the `databases` volume of the container).
+
+In **Classroom**, *Deliveries* lists them with the same filters (group, template, text) as the students table. For each one the teacher can:
+
+- **Open as a FlowStream:** it becomes a FlowStream of the teacher, without a group, so no student sees it. It can be run and inspected.
+- **Download** the copy as JSON.
+- **Remove** it.
+
+*Download the last deliveries* gives one JSON file with the last delivery of each FlowStream of the group (and the template) selected in the filters, to grade them.
+
 ### Limits for each student
 
 In **Classroom**, *Limits for each student* sets two things (0 is without limit):
@@ -153,7 +165,6 @@ The test starts a fake OpenPlatform and a temporary copy of the application, and
 
 We are still working on additional tasks in collaboration with UPM. Some ideas to talk about:
 
-- Deliveries: snapshots of the work, history of changes and export of a group to grade it.
 - Exam mode: open and close the access by dates.
 - Read-only observer mode to follow the editor of a student live.
 

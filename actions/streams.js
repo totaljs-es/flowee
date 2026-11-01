@@ -395,6 +395,30 @@ NEWACTION('Streams|import', {
 	}
 });
 
+NEWACTION('Streams|deliver', {
+	name: 'Deliver a FlowStream',
+	route: '+API ?',
+	input: '*id:String',
+	user: true,
+	audit: true,
+	action: function($, model) {
+
+		let item = Flow.db[model.id];
+
+		if (!item || model.id === 'variables' || !FUNC.streamaccess($.user, item)) {
+			$.invalid(404);
+			return;
+		}
+
+		FUNC.deliver(item, $.user, function(err, entry) {
+			if (err)
+				$.invalid(err);
+			else
+				$.callback({ success: true, value: entry.id, number: entry.number, dtcreated: entry.dtcreated });
+		});
+	}
+});
+
 NEWACTION('Streams|clone', {
 	name: 'Duplicate a FlowStream',
 	route: '+API ?',

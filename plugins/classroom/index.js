@@ -260,3 +260,115 @@ NEWACTION('Classroom|limits_save', {
 		$.callback({ success: true, paused: FUNC.idlepause() });
 	}
 });
+
+
+// Deliveries of the students: the frozen copies that they have handed in
+NEWACTION('Classroom|deliveries', {
+	name: 'Deliveries of the students',
+	route: '+API ?',
+	sa: true,
+	action: function($) {
+
+		let items = CLONE(FUNC.deliveries());
+		let latest = {};
+
+		for (let m of items)
+			latest[m.streamid] = Math.max(latest[m.streamid] || 0, m.number);
+
+		for (let m of items)
+			m.latest = m.number === latest[m.streamid];
+
+		items.quicksort('dtcreated_desc');
+		$.callback(items);
+	}
+});
+
+// Opens a delivery as a FlowStream of the teacher (without a group, so no student sees it)
+NEWACTION('Classroom|delivery_open', {
+	name: 'Open a delivery as a FlowStream',
+	route: '+API ? <300s',
+	input: '*id:String',
+	sa: true,
+	audit: true,
+	action: function($, model) {
+
+		let entry = FUNC.deliveries().findItem('id', model.id);
+
+		FUNC.deliveryread(model.id, function(err, data) {
+
+			if (err || !data) {
+				$.invalid(404);
+				return;
+			}
+
+			let name = entry.ownername + ' · ' + entry.name + ' (#' + entry.number + ')';
+
+			FUNC.streamcopy(data, { name: name, group: '', plain: true }, function(err, copy) {
+				Flow.emit('save');
+				$.callback({ success: !err, value: copy && copy.id, error: err ? err.toString() : null });
+			});
+		});
+	}
+});
+
+NEWACTION('Classroom|delivery_download', {
+	name: 'Download a delivery',
+	route: '+API ? <300s',
+	input: '*id:String',
+	sa: true,
+	action: function($, model) {
+		FUNC.deliveryread(model.id, function(err, data) {
+			if (err || !data)
+				$.invalid(404);
+			else
+				$.success(JSON.stringify(data, null, '\t'));
+		});
+	}
+});
+
+// The last delivery of each FlowStream of a group (and, optionally, of a template), in one file for grading
+NEWACTION('Classroom|delivery_export', {
+	name: 'Export the deliveries of a group',
+	route: '+API ? <300s',
+	input: 'group:String, templateid:String',
+	sa: true,
+	audit: true,
+	action: function($, model) {
+
+		let latest = {};
+
+		for (let m of FUNC.deliveries()) {
+			if (model.group && m.group !== model.group)
+				continue;
+			if (model.templateid && m.templateid !== model.templateid)
+				continue;
+			if (!latest[m.streamid] || latest[m.streamid].number < m.number)
+				latest[m.streamid] = m;
+		}
+
+		let output = { exported: NOW, group: model.group || null, deliveries: [] };
+
+		Object.keys(latest).wait(function(key, next) {
+			FUNC.deliveryread(latest[key].id, function(err, data) {
+				!err && data && output.deliveries.push({ delivery: latest[key], flowstream: data });
+				next();
+			});
+		}, function() {
+			$.success(JSON.stringify(output, null, '\t'));
+		});
+	}
+});
+
+NEWACTION('Classroom|delivery_remove', {
+	name: 'Remove a delivery',
+	route: '+API ?',
+	input: '*id:String',
+	sa: true,
+	audit: true,
+	action: function($, model) {
+		if (FUNC.deliveryremove(model.id))
+			$.success();
+		else
+			$.invalid(404);
+	}
+});
