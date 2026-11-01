@@ -92,7 +92,7 @@ Classroom → Assign → <span class="t-s">"One copy for each student"</span>
 		<tr><td>Create a FlowStream</td><td>In any group or without a group</td><td>Only in their groups, with the <code>create</code> permission</td></tr>
 		<tr><td>Edit, run, pause, restart, export, remove</td><td>Any</td><td>Only their own (<code>remove</code> needs the permission)</td></tr>
 		<tr><td>Editor and variables of a FlowStream</td><td>Any</td><td>Only their own</td></tr>
-		<tr><td>Code of the components (read, edit, remove)</td><td>Yes</td><td>No: they work with the components that the template brings</td></tr>
+		<tr><td>Code of the components (read, edit, remove)</td><td>Yes</td><td>No: they work with the components of the palette of their group and of the template</td></tr>
 		<tr><td>Import FlowStreams</td><td>Yes</td><td>No. They can duplicate their own FlowStream</td></tr>
 		<tr><td>Global variables, settings, console, CDN cache</td><td>Yes</td><td>No</td></tr>
 		<tr><td>Classroom panel (templates and overview)</td><td>Yes</td><td>No</td></tr>
@@ -110,7 +110,7 @@ Classroom → Assign → <span class="t-s">"One copy for each student"</span>
 	<div class="steps">
 		<div class="step">
 			<h3>Build the practice</h3>
-			<p>Build the exercise as any FlowStream: components, variables and a description with the instructions. In its menu choose <strong>Use as template</strong>. Students never see templates.</p>
+			<p>Build the exercise as any FlowStream: components, variables and a description with the instructions. In its menu choose <strong>Use as template</strong>. Students never see templates. In <strong>Component palette</strong> choose which components each group has: students cannot add or edit them.</p>
 		</div>
 		<div class="step">
 			<h3>Hand it out</h3>
@@ -210,10 +210,10 @@ docker rm -f flowee
 	<div class="numbers">
 		<div class="number"><strong>11.1</strong><span>Up to date with Total.js Flow 11.1: jComponent and the fix for dragging components</span></div>
 		<div class="number"><strong>SSO</strong><span>Sign in with OpenPlatform in the cloud, with no impersonation of groups</span></div>
-		<div class="number"><strong>62</strong><span>automatic checks with a test OpenPlatform: teacher, several students, copies, restoring and privacy</span></div>
+		<div class="number"><strong>74</strong><span>automatic checks with a test OpenPlatform: teacher, several students, copies, restoring and privacy</span></div>
 		<div class="number"><strong>0</strong><span>bundles to maintain: the Docker image is built from the source</span></div>
 	</div>
-	<p class="note top">Students can no longer edit the code of the components or import FlowStreams, so nobody can copy or break a component. A template of a group is now only for teachers: the students of the group no longer see or edit it. We keep working with UPM; ideas to talk about: limits per student and automatic pause, a palette of components per course, deliveries with history, an exam mode with opening and closing dates and a read-only observer mode.</p>
+	<p class="note top">Students can no longer edit the code of the components or import FlowStreams, so nobody can copy or break a component. You choose the palette of components of each group. A template of a group is now only for teachers: the students of the group no longer see or edit it. We keep working with UPM; ideas to talk about: limits per student and automatic pause, deliveries with history, an exam mode with opening and closing dates and a read-only observer mode.</p>
 </section>
 
 <section class="section thanks" aria-labelledby="thanks-title">

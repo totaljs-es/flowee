@@ -293,3 +293,9 @@ Tcx6gi6                  : ya existían
 T141qam7                 : Quitar de las plantillas
 T1gnzv5b                 : Usar como plantilla
 T3sfaup                  : Solo los profesores pueden trabajar con el código de los componentes
+Tt12vqw                  : Paleta de componentes
+T2a22fi                  : Los alumnos no pueden añadir ni editar componentes. Elige los componentes que tendrán los FlowStreams de un grupo. Prepáralos en un FlowStream tuyo, añadiéndolos desde la tienda.
+Tso1tsn                  : Elige un grupo
+Tpehjnt                  : Guardar la paleta
+T1fr9ptt                  : Se ha guardado la paleta.
+T91jqmw                  : Todavía no hay componentes. Añádelos a un FlowStream tuyo.

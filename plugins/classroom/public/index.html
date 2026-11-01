@@ -11,6 +11,9 @@
 	.CLASS .cr-state.paused i { background: #AAA; }
 	.CLASS .cr-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #EAF0FF; color: #3556A8; }
 	.CLASS .cr-error { color: #D33; }
+	.CLASS .cr-palette-group { max-width: 320px; margin-bottom: 12px; }
+	.CLASS .cr-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin-bottom: 14px; }
+	.CLASS .cr-palette-item { cursor: pointer; user-select: none; padding: 8px 10px; border: 1px solid rgba(0,0,0,0.12); border-radius: 6px; background: #FFF; }
 	.CLASS .cr-filters { display: grid; grid-template-columns: 260px 260px 1fr; gap: 10px; margin-bottom: 16px; }
 </style>
 
@@ -46,7 +49,27 @@
 				</script>
 			</ui-bind>
 
-			<div class="caption m"><label><i class="ti ti-users"></i>@(Students and FlowStreams)</label></div>
+			<div class="caption m"><label><i class="ti ti-puzzle"></i>@(Component palette)</label></div>
+			<div class="help m">@(The students cannot add or edit components. Choose the components that the FlowStreams of a group will have. Prepare them in a FlowStream of your own, adding them from the store.)</div>
+			<div class="cr-palette-group">
+				<ui-component name="input" path="?.pgroup" config="dirsource:?.groups;dirempty:@(Choose a group);dirraw:1">@(Group)</ui-component>
+			</div>
+			<ui-bind path="?.pitems" config="template" class="block">
+				<script type="text/html">
+					{{ if value && value.length }}
+					<div class="cr-palette">
+						{{ foreach m in value }}
+						<div class="cr-palette-item exec" data-exec="?/palettetoggle" data-id="{{ m.key }}"><i class="ti {{ if m.selected }}ti-check-square green{{ else }}ti-square{{ fi }} mr5"></i><i class="{{ m.icon || 'ti ti-puzzle' }} mr5"></i><b>{{ m.name }}</b> <span class="help">{{ m.version }} · {{ m.sourcename }}</span></div>
+						{{ end }}
+					</div>
+					<button class="exec b" data-exec="?/palettesave"><i class="ti ti-check-circle"></i>@(Save the palette)</button>
+					{{ else }}
+					{{ if value }}<div class="help m">@(There are no components yet. Add them to a FlowStream of your own.)</div>{{ fi }}
+					{{ fi }}
+				</script>
+			</ui-bind>
+
+			<div class="caption m" style="margin-top:24px"><label><i class="ti ti-users"></i>@(Students and FlowStreams)</label></div>
 
 			<div class="cr-filters">
 				<ui-component name="input" path="?.fgroup" config="dirsource:?.groups;dirempty:@(All groups);dirraw:1">@(Group)</ui-component>
@@ -152,6 +175,12 @@
 					rows.quicksort('ownername, name');
 					templates.quicksort('name');
 
+					exports.tapi('Classroom|palette ERROR', function(response) {
+						exports.set('pool', response.pool || []);
+						exports.set('palettes', response.palettes || {});
+						exports.palettebuild();
+					});
+
 					exports.set('all', rows);
 					exports.set('streams', streams);
 					exports.set('info', info);
@@ -182,6 +211,56 @@
 			exports.set('rows', output);
 		};
 
+		// The components of the pool, selected when the palette of the group has them
+		exports.palettebuild = function() {
+
+			var model = exports.model;
+			var group = model.pgroup;
+			var current = group && model.palettes ? (model.palettes[group] || []) : [];
+			var items = [];
+
+			if (!group) {
+				exports.set('pitems', null);
+				return;
+			}
+
+			var used = {};
+
+			for (var m of (model.pool || [])) {
+				var selected = !used[m.id] && current.findItem('id', m.id) != null;
+				if (selected)
+					used[m.id] = 1;
+				items.push({ key: m.source + ':' + m.id, source: m.source, sourcename: m.sourcename, id: m.id, name: m.name, version: m.version, icon: m.icon, selected: selected });
+			}
+
+			exports.set('pitems', items);
+		};
+
+		exports.palettetoggle = function(el) {
+			var item = exports.model.pitems.findItem('key', ATTRD(el));
+			if (item) {
+				item.selected = !item.selected;
+				exports.update('pitems', true);
+			}
+		};
+
+		exports.palettesave = function() {
+
+			var model = exports.model;
+			var items = [];
+
+			for (var m of model.pitems) {
+				if (m.selected)
+					items.push({ source: m.source, id: m.id });
+			}
+
+			exports.tapi('Classroom|palette_save ERROR @showloading', { group: model.pgroup, items: items }, function() {
+				exports.refresh();
+				SETTER('notifybar/success', '@(The palette has been saved.)');
+			});
+		};
+
+		exports.watch('pgroup', () => exports.palettebuild());
 		exports.watch('fgroup', () => exports.filter());
 		exports.watch('ftemplate', () => exports.filter());
 		exports.watch('fsearch', () => exports.filter());

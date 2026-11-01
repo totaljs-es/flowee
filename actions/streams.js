@@ -116,6 +116,7 @@ NEWACTION('Streams|save', {
 
 			model.design = {};
 			model.components = {};
+			FUNC.paletteapply(model);
 			model.variables = {};
 			model.sources = {};
 			model.dtcreated = NOW;
@@ -153,6 +154,9 @@ NEWACTION('Streams|save', {
 				item.readme = model.readme;
 				item.proxypath = model.proxypath;
 				item.proxytimeout = model.proxytimeout;
+
+				// The group may have changed: it brings its palette of components
+				FUNC.paletteapply(item);
 
 				if (!item.import)
 					item.import = 'extensions.js';

@@ -276,6 +276,45 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		r = await api('teacher', 'Streams|import', { data: JSON.stringify({ id: 'x', name: 'Imported by the teacher', group: 'g1', design: {}, components: {} }) });
 		check('the teacher imports a FlowStream', r.json && r.json.success, r.text);
 
+
+		// The palette of components of a group
+		const PALETTE = '<script total>exports.id = "palettecom"; exports.name = "Palette component"; exports.version = "1.0.0"; exports.icon = "ti ti-code"; exports.group = "Test"; exports.config = {}; exports.inputs = [{ id: "input", name: "Input" }]; exports.outputs = []; exports.make = function(instance) {};</script>';
+		await api('teacher', 'Streams|save', { name: 'Library', icon: 'ti ti-microchip' });
+		await sleep(1000);
+		const library = ((await api('teacher', 'Streams')).json || []).find(m => m.name === 'Library') || {};
+		ans = await editorcall('teacher', library.id, { TYPE: 'component_save', id: 'palettecom', data: PALETTE });
+		check('the teacher adds a component to a FlowStream of his own', ans && !ans.error, JSON.stringify(ans));
+		await sleep(6500);
+		r = await api('s1', 'Classroom|palette');
+		check('a student cannot read the palettes', denied(r), r.text);
+		r = await api('s1', 'Classroom|palette_save', { group: 'g1', items: [{ source: library.id, id: 'palettecom' }] });
+		check('a student cannot change a palette', denied(r), r.text);
+		r = await api('teacher', 'Classroom|palette');
+		const pooled = ((r.json && r.json.pool) || []).find(m => m.id === 'palettecom');
+		check('the pool has the components of the teachers with their name and version', pooled && pooled.name === 'Palette component' && pooled.version === '1.0.0', r.text);
+		check('the pool does not have the components of the students', !((r.json && r.json.pool) || []).some(m => m.source === one.id), r.text);
+		r = await api('teacher', 'Classroom|palette_save', { group: 'g1', items: [{ source: library.id, id: 'palettecom' }] });
+		check('the teacher saves the palette of a group', r.json && r.json.success && r.json.components === 1, r.text);
+		await sleep(3000);
+		r = await api('teacher', 'Streams|raw', { id: one.id });
+		check('the FlowStreams of the group get the components of the palette', r.json && r.json.components && r.json.components.palettecom && r.json.components.palettecom.includes('Palette component'), r.text);
+		r = await api('s1', 'Streams|save', { name: 'With the palette', group: 'g1', icon: 'ti ti-microchip' });
+		await sleep(1500);
+		const withpalette = ((await api('s1', 'Streams')).json || []).find(m => m.name === 'With the palette') || {};
+		r = await api('teacher', 'Streams|raw', { id: withpalette.id });
+		check('a new FlowStream of a student has the palette of his group', r.json && r.json.components && 'palettecom' in r.json.components, r.text);
+		r = await api('s2', 'Streams|save', { name: 'Other group', group: 'g2', icon: 'ti ti-microchip' });
+		await sleep(1500);
+		const othergroup = ((await api('s2', 'Streams')).json || []).find(m => m.name === 'Other group') || {};
+		r = await api('teacher', 'Streams|raw', { id: othergroup.id });
+		check('the palette of a group does not reach the other groups', r.json && r.json.components && !('palettecom' in r.json.components), r.text);
+		ans = await editorcall('s1', withpalette.id, { TYPE: 'component_save', id: 'palettecom', data: PALETTE.replace('Palette component', 'Changed by a student') });
+		check('a student still cannot change the code of a component of the palette', ans && ans.error, JSON.stringify(ans));
+		r = await api('teacher', 'Classroom|palette_save', { group: 'g1', items: [] });
+		check('the teacher empties the palette', r.json && r.json.success, r.text);
+		r = await api('teacher', 'Classroom|palette');
+		check('the palette of the group is gone', r.json && !(r.json.palettes && r.json.palettes.g1), r.text);
+
 		r = await api('s1', 'Streams|clone', { id: one.id });
 		check('a student duplicates his own FlowStream', r.json && r.json.success, r.text);
 		await sleep(1500);

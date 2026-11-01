@@ -92,7 +92,7 @@ Classroom → Asignar → <span class="t-s">"Una copia para cada alumno"</span>
 		<tr><td>Crear un FlowStream</td><td>En cualquier grupo o sin grupo</td><td>Solo en sus grupos y con el permiso <code>create</code></td></tr>
 		<tr><td>Editar, ejecutar, pausar, reiniciar, exportar, borrar</td><td>Cualquiera</td><td>Solo los suyos (borrar necesita <code>remove</code>)</td></tr>
 		<tr><td>Editor y variables de un FlowStream</td><td>Cualquiera</td><td>Solo los suyos</td></tr>
-		<tr><td>Código de los componentes (leer, editar, quitar)</td><td>Sí</td><td>No: trabajan con los componentes que trae la plantilla</td></tr>
+		<tr><td>Código de los componentes (leer, editar, quitar)</td><td>Sí</td><td>No: trabajan con los componentes de la paleta de su grupo y de la plantilla</td></tr>
 		<tr><td>Importar FlowStreams</td><td>Sí</td><td>No. Sí pueden duplicar su propio FlowStream</td></tr>
 		<tr><td>Variables globales, ajustes, consola y caché del CDN</td><td>Sí</td><td>No</td></tr>
 		<tr><td>Panel Classroom (plantillas y resumen)</td><td>Sí</td><td>No</td></tr>
@@ -110,7 +110,7 @@ Classroom → Asignar → <span class="t-s">"Una copia para cada alumno"</span>
 	<div class="steps">
 		<div class="step">
 			<h3>Crea la práctica</h3>
-			<p>Construye el ejercicio como cualquier FlowStream: componentes, variables y una descripción con el enunciado. En su menú elige <strong>Usar como plantilla</strong>. Los alumnos nunca ven las plantillas.</p>
+			<p>Construye el ejercicio como cualquier FlowStream: componentes, variables y una descripción con el enunciado. En su menú elige <strong>Usar como plantilla</strong>. Los alumnos nunca ven las plantillas. En <strong>Paleta de componentes</strong> eliges qué componentes tiene cada grupo: los alumnos no pueden añadirlos ni editarlos.</p>
 		</div>
 		<div class="step">
 			<h3>Repártela</h3>
@@ -210,10 +210,10 @@ docker rm -f flowee
 	<div class="numbers">
 		<div class="number"><strong>11.1</strong><span>Al día con Total.js Flow 11.1: jComponent y el arreglo al arrastrar componentes</span></div>
 		<div class="number"><strong>SSO</strong><span>Acceso con OpenPlatform en la nube, sin suplantación de grupos</span></div>
-		<div class="number"><strong>62</strong><span>comprobaciones automáticas con un OpenPlatform de pruebas: profesor, varios alumnos, copias, restauración y privacidad</span></div>
+		<div class="number"><strong>74</strong><span>comprobaciones automáticas con un OpenPlatform de pruebas: profesor, varios alumnos, copias, restauración y privacidad</span></div>
 		<div class="number"><strong>0</strong><span>bundles que mantener: la imagen Docker se construye desde el código</span></div>
 	</div>
-	<p class="note top">Los alumnos ya no pueden editar el código de los componentes ni importar FlowStreams, así que nadie puede copiar ni estropear un componente. Una plantilla de un grupo es ahora solo para los profesores: los alumnos del grupo ya no la ven ni la editan. Seguimos trabajando con la UPM; ideas para hablar: límites por alumno y pausa automática, una paleta de componentes por curso, entregas con historial, un modo examen con fechas de apertura y cierre y un modo observador de solo lectura.</p>
+	<p class="note top">Los alumnos ya no pueden editar el código de los componentes ni importar FlowStreams, así que nadie puede copiar ni estropear un componente. Tú eliges la paleta de componentes de cada grupo. Una plantilla de un grupo es ahora solo para los profesores: los alumnos del grupo ya no la ven ni la editan. Seguimos trabajando con la UPM; ideas para hablar: límites por alumno y pausa automática, entregas con historial, un modo examen con fechas de apertura y cierre y un modo observador de solo lectura.</p>
 </section>
 
 <section class="section thanks" aria-labelledby="thanks-title">

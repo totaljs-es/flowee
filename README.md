@@ -32,7 +32,7 @@ This edition must work inside [OpenPlatform](https://docs.totaljs.com/openplatfo
 |---|---|---|
 | FlowStreams in the list | all | only the ones of his groups (and, if a FlowStream has an owner, only his own) |
 | Create a FlowStream | in any group, or without a group | only in his groups, and he needs the permission `create` |
-| Code of the components (read, edit, remove) | yes | no: they work with the components that the template brings |
+| Code of the components (read, edit, remove) | yes | no: they work with the components of the palette of their group and of the template |
 | Import FlowStreams | yes | no (they can duplicate their own FlowStream) |
 | Edit, run, pause, restart, export, remove | any FlowStream | only his own (`remove` needs the permission `remove`) |
 | Editor of a FlowStream | any | only his own |
@@ -66,6 +66,16 @@ A copy keeps the design, the components, the variables and the description of th
 ### Overview
 
 A table with the student, the group, the FlowStream (and the template it comes from), its status (running or paused, errors), the number of messages and the date of the last change. It can be filtered by group, by template and by text, so the teacher can see at once who has not started the exercise and who is working on it.
+
+### Component palette
+
+The students cannot add or edit components, so you decide which ones each group has:
+
+1. Add the components you want to a FlowStream of your own (for example one called *Library*), from the store as usual.
+2. In **Classroom**, in *Component palette*, choose a group and tick the components. Save.
+3. The FlowStreams of that group get those components (they restart once), and so does every new FlowStream that a student creates or duplicates in the group. The code is kept on the server: nobody in the class can change it.
+
+A component that you remove from a palette stays in the FlowStreams that already have it. The palettes are kept in the preferences of the application (`palettes`).
 
 ### Restore, open and remove
 
@@ -116,7 +126,6 @@ The test starts a fake OpenPlatform and a temporary copy of the application, and
 We are still working on additional tasks in collaboration with UPM. Some ideas to talk about:
 
 - Limits for each student (number of FlowStreams, memory) and automatic pause of the FlowStreams that are not used.
-- A palette of components for each course (for example, without access to files or to the shell).
 - Deliveries: snapshots of the work, history of changes and export of a group to grade it.
 - Exam mode: open and close the access by dates.
 - Read-only observer mode to follow the editor of a student live.

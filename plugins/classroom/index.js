@@ -146,3 +146,103 @@ NEWACTION('Classroom|reset', {
 		Flow.emit('save');
 	}
 });
+
+
+// The palette of components of each group: the students cannot add or edit components, they get the ones that the teacher chooses here
+NEWACTION('Classroom|palette', {
+	name: 'Components that can go into the palettes',
+	route: '+API ?',
+	sa: true,
+	action: function($) {
+
+		let pool = [];
+		let seen = {};
+
+		for (let key in Flow.db) {
+
+			let item = Flow.db[key];
+
+			// The FlowStreams of the teachers are the source of the components
+			if (key === 'variables' || !item || item.ownerid || !item.components)
+				continue;
+
+			for (let id in item.components) {
+				let code = item.components[id];
+				let meta = FUNC.componentmeta(code);
+				let hash = id + '|' + HASH(code || '');
+				if (!seen[hash]) {
+					seen[hash] = 1;
+					pool.push({ source: key, sourcename: item.name, id: id, name: meta.name || id, version: meta.version || '', icon: meta.icon || '' });
+				}
+			}
+		}
+
+		pool.quicksort('name');
+
+		let palettes = {};
+		let all = FUNC.palettes();
+
+		for (let group in all) {
+			palettes[group] = [];
+			for (let id in all[group])
+				palettes[group].push({ id: id, name: all[group][id].name, version: all[group][id].version, icon: all[group][id].icon });
+		}
+
+		$.callback({ pool: pool, palettes: palettes });
+	}
+});
+
+NEWACTION('Classroom|palette_save', {
+	name: 'Save the palette of components of a group',
+	route: '+API ? <300s',
+	input: '*group:String, items:[*source:String, *id:String]',
+	sa: true,
+	audit: true,
+	action: function($, model) {
+
+		let palette = {};
+		let count = 0;
+
+		for (let m of (model.items || [])) {
+			let source = Flow.db[m.source];
+			let code = source && source.components ? source.components[m.id] : null;
+			if (code) {
+				let meta = FUNC.componentmeta(code);
+				palette[m.id] = { name: meta.name || m.id, version: meta.version || '', icon: meta.icon || '', code: code };
+				count++;
+			}
+		}
+
+		let all = CLONE(FUNC.palettes());
+
+		if (count)
+			all[model.group] = palette;
+		else
+			delete all[model.group];
+
+		PREF.set('palettes', all);
+
+		// The FlowStreams of the group (not the templates) get the new components
+		let jobs = [];
+
+		for (let key in Flow.db) {
+			let item = Flow.db[key];
+			if (key !== 'variables' && item && item.group === model.group && !item.template) {
+				let copy = CLONE(item);
+				if (FUNC.paletteapply(copy))
+					jobs.push(copy);
+			}
+		}
+
+		jobs.wait(function(item, next) {
+			item.dtupdated = NOW;
+			TRANSFORM('flowstream.update', item, function(err, item) {
+				Flow.reload(item);
+				setTimeout(next, 300);
+			});
+		}, function() {
+			Flow.emit('save');
+			$.callback({ success: true, components: count, updated: jobs.length });
+		});
+	}
+});

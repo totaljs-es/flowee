@@ -100,6 +100,52 @@ FUNC.opstudents = function(users, groupid) {
 	return users.filter(m => !m.sa && !m.isdisabled && !m.isinactive && m.groups && m.groups.includes(groupid));
 };
 
+// The palette of components of a group: { componentid: { name, version, icon, code } }. The students cannot add or edit components,
+// they get the ones that the teacher chose for their group (the code is kept on the server, so it cannot be changed by the client).
+FUNC.palettes = function() {
+	return PREF.palettes || {};
+};
+
+// name, version and icon of a component (the first literal strings of its code; the code is never executed)
+FUNC.componentmeta = function(code) {
+
+	let meta = {};
+
+	if (typeof(code) !== 'string')
+		return meta;
+
+	for (let key of ['id', 'name', 'version', 'icon']) {
+		let m = code.match(new RegExp('exports\\.' + key + '\\s*=\\s*([\'"`])(.*?)\\1\\s*;'));
+		if (m)
+			meta[key] = m[2];
+	}
+
+	return meta;
+};
+
+// Puts the components of the palette of the group into the FlowStream. It returns true if the FlowStream changed.
+FUNC.paletteapply = function(item) {
+
+	let palette = item && item.group ? FUNC.palettes()[item.group] : null;
+
+	if (!palette)
+		return false;
+
+	let changed = false;
+
+	if (!item.components)
+		item.components = {};
+
+	for (let id in palette) {
+		if (item.components[id] !== palette[id].code) {
+			item.components[id] = palette[id].code;
+			changed = true;
+		}
+	}
+
+	return changed;
+};
+
 // Makes a copy of a FlowStream for a group and, optionally, for one student
 FUNC.streamcopy = function(source, opt, callback) {
 
@@ -122,6 +168,8 @@ FUNC.streamcopy = function(source, opt, callback) {
 	data.env = PREF.env || 'dev';
 	data.directory = CONF.directory || PATH.root('/flowstream/');
 	data.variables2 = Flow.db.variables || {};
+
+	FUNC.paletteapply(data);
 
 	TRANSFORM('flowstream.create', data, function(err, data) {
 		Flow.db[data.id] = data;
