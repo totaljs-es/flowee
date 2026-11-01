@@ -245,6 +245,10 @@
 	</style>
 </head>
 <body@{if model.darkmode} class="ui-dark"@{fi}>
+@{if model.observer}
+<style>.observerbar { position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 99999; background: #F0A020; color: #000; font: bold 12px/1 Arial, sans-serif; padding: 6px 16px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); pointer-events: none; }</style>
+<div class="observerbar"><i class="ti ti-eye"></i> @(Observing in real time · read only)</div>
+@{fi}
 
 	<ui-component name="LAZY approve" config="cancel:@(Cancel)"></ui-component>
 	<ui-component name="LAZY autocomplete"></ui-component>

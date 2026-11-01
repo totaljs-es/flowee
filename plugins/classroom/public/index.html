@@ -498,6 +498,10 @@
 			EXEC('common/open', $('<div data-id="{0}"></div>'.format(ATTRD(el))));
 		};
 
+		exports.observe = function(el) {
+			EXEC('common/observe', $('<div data-id="{0}"></div>'.format(ATTRD(el))));
+		};
+
 		exports.deliveriesexport = function() {
 			var model = exports.model;
 			exports.tapi('Classroom|delivery_export ERROR @showloading', { group: model.fgroup || '', templateid: model.ftemplate || '' }, function(response) {
@@ -560,6 +564,9 @@
 			opt.items = [];
 			opt.items.push({ id: 'open', name: '@(Open)', icon: 'ti ti-pencil' });
 
+			if (item.ownername)
+				opt.items.push({ id: 'observe', name: '@(Observe in real time)', icon: 'ti ti-eye' });
+
 			if (item.templateid)
 				opt.items.push({ id: 'reset', name: '@(Restore from the template)', icon: 'ti ti-undo' });
 
@@ -570,6 +577,9 @@
 				switch (selected.id) {
 					case 'open':
 						exports.open(el);
+						break;
+					case 'observe':
+						exports.observe(el);
 						break;
 					case 'reset':
 						SETTER('approve/show', '@(The work of the student in <b>"{name}"</b> will be replaced by the template. Continue?)'.args(item), '"ti ti-undo" @(Restore)', function() {

@@ -69,9 +69,9 @@ async function api(user, schema, data) {
 }
 
 // Sends a message of the editor and returns the answer that carries the same callbackid
-function editorcall(user, id, msg) {
+function editorcall(user, id, msg, extra) {
 	return new Promise(function(resolve) {
-		const ws = new WebSocket('ws://127.0.0.1:' + APP_PORT + '/fapi/' + id + '/?openplatform=' + encodeURIComponent(opurl(user)));
+		const ws = new WebSocket('ws://127.0.0.1:' + APP_PORT + '/fapi/' + id + '/?openplatform=' + encodeURIComponent(opurl(user)) + (extra || ''));
 		let timer = null;
 		msg.callbackid = 'cb1';
 		ws.onmessage = function(e) {
@@ -403,6 +403,23 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		check('the other delivery stays', (r.json || []).filter(m => m.streamid === one.id).length === 1, r.text);
 		r = await api('teacher', 'Classroom|delivery_download', { id: first.id });
 		check('a removed delivery cannot be downloaded', denied(r), r.text);
+
+		// Observer: a teacher follows the editor of a student live, read only
+		const obs = '&observer=1';
+		ans = await editorcall('teacher', one.id, { TYPE: 'sources' }, obs);
+		check('an observer can read', ans && !ans.error, JSON.stringify(ans));
+		for (const [name, msg] of [['save the design', { TYPE: 'save', data: {} }], ['save a component', { TYPE: 'component_save', id: 'obs', data: COMPONENT }], ['pause', { TYPE: 'pause', is: 1 }], ['change the variables', { TYPE: 'variables', data: { cheat: 1 } }], ['restart', { TYPE: 'restart' }], ['remove', { TYPE: 'remove' }]]) {
+			ans = await editorcall('teacher', one.id, msg, obs);
+			check('an observer cannot ' + name, ans && ans.error, JSON.stringify(ans));
+		}
+		ans = await editorcall('teacher', one.id, { TYPE: 'save', data: {} });
+		check('the same teacher without observing can still change', ans && !ans.error, JSON.stringify(ans));
+		ans = await editorcall('s1', one.id, { TYPE: 'component_save', id: 'obs2', data: COMPONENT }, obs);
+		check('the observer flag gives a student nothing more', ans && ans.error, JSON.stringify(ans));
+		let page = await fetch(BASE + '/designer/?socket=x&observer=1&openplatform=' + encodeURIComponent(opurl('teacher'))).then(m => m.text());
+		check('the editor of an observer shows the banner and nothing can be changed', page.includes('observerbar') && /design:false/.test(page) && /pause:false/.test(page) && /components:\{create:false/.test(page), 'page');
+		page = await fetch(BASE + '/designer/?socket=x&openplatform=' + encodeURIComponent(opurl('teacher'))).then(m => m.text());
+		check('the normal editor has no banner and can be changed', !page.includes('observerbar') && /design:true/.test(page), 'page');
 
 		// Exam mode
 		const iso = ms => new Date(Date.now() + ms).toISOString();

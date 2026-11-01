@@ -801,6 +801,42 @@
 
 			};
 
+			// A teacher follows the editor of a student live: it is read only (the server refuses any change)
+			exports.observe = function(el) {
+
+				var id = ATTRD(el);
+				var tabid = 'o' + id;
+				var item = model.tabs.findItem('id', tabid);
+
+				if (item) {
+					SETTER('parts/focus', item.id);
+					return;
+				}
+
+				var flow = model.items.findItem('id', id);
+
+				if (!flow)
+					return;
+
+				if (!model.appmenuwidth)
+					model.appmenuwidth = $('.appmenu').width();
+
+				exports.nul('page');
+
+				var url = location.origin.replace(/^http/, 'ws') + '@{#}/fapi/{0}/'.format(id) + model.openplatform;
+				url += (url.indexOf('?') === -1 ? '?' : '&') + 'observer=1';
+
+				item = {};
+				item.id = tabid;
+				item.icon = 'ti ti-eye';
+				item.name = '@(Observe)' + ': ' + flow.name;
+				item.html = ('<iframe src="' + model.designer + '?darkmode={0}&socket={1}&components={2}&language={3}&observer=1" scrolling="no" frameborder="0" class="iflowstream" style="width:{4}px"></iframe>').format($('body').hclass('ui-dark') ? '1' : '0', encodeURIComponent(url), encodeURIComponent(model.components || '') + (model.openplatform ? ('&' + model.openplatform.substring(1)) : ''), model.language, WW - model.appmenuwidth);
+				item.focus = 'common/focusiframe';
+				SETTER('loading/show');
+				SETTER('loading/hide', 2000);
+				exports.push('tabs', item);
+			};
+
 			exports.open = function(el) {
 
 				var id = ATTRD(el);

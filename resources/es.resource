@@ -347,3 +347,7 @@ T1q3azd4                 : No se permite durante el examen
 Tagsorb                  : Fecha no válida
 T1cgp6gp                 : El fin debe ser posterior al inicio y estar en el futuro
 T125ztmi                 : El acceso a este FlowStream está cerrado
+Twzfevc                  : Observando en directo · solo lectura
+T7xq0s                   : Observar
+T15aiq9k                 : Observar en directo
+T1813fti                 : Observando: es de solo lectura

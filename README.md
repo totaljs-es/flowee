@@ -77,6 +77,10 @@ The students cannot add or edit components, so you decide which ones each group 
 
 A component that you remove from a palette stays in the FlowStreams that already have it. The palettes are kept in the preferences of the application (`palettes`).
 
+### Observe in real time
+
+In the menu of a row of the students table, **Observe in real time** opens the editor of that student's FlowStream in a new tab, **read only**: an orange bar says so, the controls to change things are not there, and the server refuses any message that would change the FlowStream (the design, the components, the variables, pausing, restarting or removing), so it does not depend on the interface. The teacher sees what the student does: the changes that he applies, the messages and the errors, as they happen. The list of connected editors of the student shows that the teacher is there.
+
 ### Exam mode
 
 In **Classroom**, *Exam mode* schedules an exam for a group of OpenPlatform with a start and an end:
@@ -176,7 +180,9 @@ The test starts a fake OpenPlatform and a temporary copy of the application, and
 
 We are still working on additional tasks in collaboration with UPM. Some ideas to talk about:
 
-- Read-only observer mode to follow the editor of a student live.
+- Components that are forbidden for a course (for example, the ones that reach files or the shell).
+- A record of the activity of each student.
+
 
 ## Installation
 
