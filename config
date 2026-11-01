@@ -5,6 +5,9 @@ $proxytimeout               : 120
 // Optional: the address of the users API of OpenPlatform (the groups of the teachers). Without it the groups come with the session of the user.
 // op_groups                   : https://my_openplatform/users/?token=[]
 
+// Optional: OpenPlatform cloud as the sign-in (the groups and the teacher come from its session)
+// sso                         : https://my.openplatform.cloud
+
 cookie          (generate)  : 6
 cookie_secret   (generate)  : 10
 
