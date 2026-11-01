@@ -351,3 +351,10 @@ Twzfevc                  : Observando en directo · solo lectura
 T7xq0s                   : Observar
 T15aiq9k                 : Observar en directo
 T1813fti                 : Observando: es de solo lectura
+T1cwdf3x                 : Componentes prohibidos
+T8z90y3                  : Los componentes que marques se quitan de los FlowStreams del grupo, así que los alumnos trabajan sin ellos (los nodos que los usan dejan de funcionar).
+Tlzksi                   : Prohibir también los que parecen acceder a archivos o al shell
+T1rouq10                 : Parece que accede a archivos o al shell
+T1ufta1b                 : Guardar los componentes prohibidos
+T1ou52hj                 : Se han guardado los componentes prohibidos.
+T1cp1qw0                 : FlowStreams actualizados

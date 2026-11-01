@@ -142,6 +142,9 @@ NEWACTION('Classroom|reset', {
 		item.sources = CLONE(template.sources || {});
 		item.dtupdated = NOW;
 
+		// The palette and the forbidden components of the group apply to the restored copy
+		FUNC.paletteapply(item);
+
 		TRANSFORM('flowstream.update', item, function(err, item) {
 			Flow.reload(item);
 		});
@@ -424,5 +427,81 @@ NEWACTION('Classroom|exam_remove', {
 			$.success();
 		} else
 			$.invalid(404);
+	}
+});
+
+
+// Forbidden components for each group: they are taken out of the FlowStreams of the group (the students work without them)
+NEWACTION('Classroom|denied', {
+	name: 'Components that can be forbidden',
+	route: '+API ?',
+	sa: true,
+	action: function($) {
+
+		let pool = [];
+		let seen = {};
+
+		for (let key in Flow.db) {
+
+			let item = Flow.db[key];
+
+			if (key === 'variables' || !item || !item.components)
+				continue;
+
+			for (let id in item.components) {
+				let code = item.components[id];
+				let hash = id + '|' + HASH(code || '');
+				if (!seen[hash]) {
+					seen[hash] = 1;
+					let meta = FUNC.componentmeta(code);
+					pool.push({ id: id, name: meta.name || id, version: meta.version || '', icon: meta.icon || '', risky: FUNC.componentrisk(code) });
+				}
+			}
+		}
+
+		pool.quicksort('name');
+		$.callback({ pool: pool, denied: FUNC.denied() });
+	}
+});
+
+NEWACTION('Classroom|denied_save', {
+	name: 'Save the forbidden components of a group',
+	route: '+API ? <300s',
+	input: '*group:String, ids:[String], auto:Boolean',
+	sa: true,
+	audit: true,
+	action: function($, model) {
+
+		let all = CLONE(FUNC.denied());
+
+		if ((model.ids && model.ids.length) || model.auto)
+			all[model.group] = { ids: model.ids || [], auto: !!model.auto };
+		else
+			delete all[model.group];
+
+		PREF.set('denied', all);
+
+		// The FlowStreams of the group (not the templates) lose the forbidden components
+		let jobs = [];
+
+		for (let key in Flow.db) {
+			let item = Flow.db[key];
+			if (key !== 'variables' && item && item.group === model.group && !item.template) {
+				let copy = CLONE(item);
+				if (FUNC.paletteapply(copy))
+					jobs.push(copy);
+			}
+		}
+
+		jobs.wait(function(item, next) {
+			item.dtupdated = NOW;
+			TRANSFORM('flowstream.update', item, function(err, item) {
+				Flow.reload(item);
+				setTimeout(next, 300);
+			});
+		}, function() {
+			Flow.emit('save');
+			$.callback({ success: true, updated: jobs.length });
+		});
 	}
 });

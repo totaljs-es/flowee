@@ -18,6 +18,7 @@
 	.CLASS .cr-field { flex: 0 0 210px; max-width: 100%; }
 	.CLASS .cr-date { width: 100%; height: 34px; padding: 0 10px; border: 1px solid #E0E0E0; border-radius: var(--radius); background: #FFF; color: #000; font: inherit; }
 	.ui-dark .CLASS .cr-date { background: #303030; color: #E0E0E0; border-color: #404040; }
+	.CLASS .cr-risk { background: #FFF1D6; color: #9A5B00; }
 	.CLASS .cr-palette-group { max-width: 320px; margin-bottom: 12px; }
 	.CLASS .cr-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin-bottom: 14px; }
 	.CLASS .cr-palette-item { cursor: pointer; user-select: none; padding: 8px 10px; border: 1px solid rgba(0,0,0,0.12); border-radius: 6px; background: #FFF; }
@@ -131,6 +132,27 @@
 					<button class="exec cr-btn" data-exec="?/palettesave"><i class="ti ti-check-circle"></i>@(Save the palette)</button>
 					{{ else }}
 					{{ if value }}<div class="help m">@(There are no components yet. Add them to a FlowStream of your own.)</div>{{ fi }}
+					{{ fi }}
+				</script>
+			</ui-bind>
+
+			<div class="caption m" style="margin-top:24px"><label><i class="ti ti-ban"></i>@(Forbidden components)</label></div>
+			<div class="help m">@(The components that you tick are taken out of the FlowStreams of the group, so the students work without them (the nodes that use them stop working).)</div>
+			<div class="cr-palette-group">
+				<ui-component name="input" path="?.dgroup" config="dirsource:?.groups;dirempty:@(Choose a group);dirraw:1">@(Group)</ui-component>
+			</div>
+			<div class="m"><ui-component name="input" path="?.dauto" config="type:checkbox" class="b">@(Also forbid the ones that look like they reach files or the shell)</ui-component></div>
+			<ui-bind path="?.ditems" config="template" class="block">
+				<script type="text/html">
+					{{ if value }}
+					{{ if value.length }}
+					<div class="cr-palette">
+						{{ foreach m in value }}
+						<div class="cr-palette-item exec" data-exec="?/deniedtoggle" data-id="{{ m.id }}"><i class="ti {{ if m.selected }}ti-check-square red{{ else }}ti-square{{ fi }} mr5"></i><i class="{{ m.icon || 'ti ti-puzzle' }} mr5"></i><b>{{ m.name }}</b> <span class="help">{{ m.version }}</span>{{ if m.risky }} <span class="cr-badge cr-risk" title="@(Looks like it reaches files or the shell)"><i class="ti ti-alert-triangle"></i></span>{{ fi }}</div>
+						{{ end }}
+					</div>
+					{{ fi }}
+					<button class="exec cr-btn" data-exec="?/deniedsave"><i class="ti ti-check-circle"></i>@(Save the forbidden components)</button>
 					{{ fi }}
 				</script>
 			</ui-bind>
@@ -284,6 +306,12 @@
 						exports.filter();
 					});
 
+					exports.tapi('Classroom|denied ERROR', function(response) {
+						exports.set('dpool', response.pool || []);
+						exports.set('denied', response.denied || {});
+						exports.deniedbuild();
+					});
+
 					exports.tapi('Classroom|palette ERROR', function(response) {
 						exports.set('pool', response.pool || []);
 						exports.set('palettes', response.palettes || {});
@@ -379,6 +407,51 @@
 			}
 
 			exports.set('pitems', items);
+		};
+
+		// The components of the pool, selected when the group forbids them
+		exports.deniedbuild = function() {
+
+			var model = exports.model;
+			var group = model.dgroup;
+
+			if (!group) {
+				exports.set('ditems', null);
+				return;
+			}
+
+			var rule = (model.denied && model.denied[group]) || { ids: [], auto: false };
+			var items = [];
+
+			for (var m of (model.dpool || []))
+				items.push({ id: m.id, name: m.name, version: m.version, icon: m.icon, risky: m.risky, selected: rule.ids.indexOf(m.id) !== -1 });
+
+			exports.set('dauto', !!rule.auto);
+			exports.set('ditems', items);
+		};
+
+		exports.deniedtoggle = function(el) {
+			var item = exports.model.ditems.findItem('id', ATTRD(el));
+			if (item) {
+				item.selected = !item.selected;
+				exports.update('ditems', true);
+			}
+		};
+
+		exports.deniedsave = function() {
+
+			var model = exports.model;
+			var ids = [];
+
+			for (var m of model.ditems) {
+				if (m.selected)
+					ids.push(m.id);
+			}
+
+			exports.tapi('Classroom|denied_save ERROR @showloading', { group: model.dgroup, ids: ids, auto: !!model.dauto }, function(response) {
+				exports.refresh();
+				SETTER('notify/success', '@(The forbidden components have been saved.)' + (response.updated ? (' ' + '@(FlowStreams updated):' + ' ' + response.updated) : ''));
+			});
 		};
 
 		exports.palettetoggle = function(el) {
@@ -481,6 +554,7 @@
 		};
 
 		exports.watch('pgroup', () => exports.palettebuild());
+		exports.watch('dgroup', () => exports.deniedbuild());
 		exports.watch('fgroup', () => exports.filter());
 		exports.watch('ftemplate', () => exports.filter());
 		exports.watch('fsearch', () => exports.filter());

@@ -127,22 +127,53 @@ FUNC.componentmeta = function(code) {
 	return meta;
 };
 
-// Puts the components of the palette of the group into the FlowStream. It returns true if the FlowStream changed.
-FUNC.paletteapply = function(item) {
+// Forbidden components for each group: { ids: [componentid], auto: Boolean }. "auto" also forbids the components whose code looks like it reaches files or the shell.
+FUNC.denied = function() {
+	return PREF.denied || {};
+};
 
-	let palette = item && item.group ? FUNC.palettes()[item.group] : null;
+// Does the code look like it reaches files, the shell or the system of the server? It is a warning for the teacher, not a proof.
+const RISK = /child_process|\bspawn(Sync)?\s*\(|\bexec(Sync|File|FileSync)?\s*\(|require\s*\(\s*['"`](node:)?(fs|child_process|net|dgram|cluster|worker_threads|vm|os)['"`]\s*\)|\bF\.(Fs|Child|Zlib)\b|\bprocess\.(env|exit|kill|binding)|\beval\s*\(|new\s+Function\s*\(|\bFS\.|\bPATH\.(root|databases|private)/;
 
-	if (!palette)
+FUNC.componentrisk = function(code) {
+	return typeof(code) === 'string' && RISK.test(code);
+};
+
+// Is the component forbidden for the group?
+FUNC.componentdenied = function(group, id, code) {
+
+	let rule = group ? FUNC.denied()[group] : null;
+
+	if (!rule)
 		return false;
 
+	return (rule.ids && rule.ids.includes(id)) || (rule.auto && FUNC.componentrisk(code));
+};
+
+// Puts the components of the palette of the group into the FlowStream and takes out the forbidden ones. It returns true if the FlowStream changed.
+FUNC.paletteapply = function(item) {
+
+	if (!item || !item.group)
+		return false;
+
+	let palette = FUNC.palettes()[item.group];
 	let changed = false;
 
 	if (!item.components)
 		item.components = {};
 
-	for (let id in palette) {
-		if (item.components[id] !== palette[id].code) {
-			item.components[id] = palette[id].code;
+	if (palette) {
+		for (let id in palette) {
+			if (item.components[id] !== palette[id].code && !FUNC.componentdenied(item.group, id, palette[id].code)) {
+				item.components[id] = palette[id].code;
+				changed = true;
+			}
+		}
+	}
+
+	for (let id in item.components) {
+		if (FUNC.componentdenied(item.group, id, item.components[id])) {
+			delete item.components[id];
 			changed = true;
 		}
 	}

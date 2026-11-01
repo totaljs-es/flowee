@@ -421,6 +421,49 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		page = await fetch(BASE + '/designer/?socket=x&openplatform=' + encodeURIComponent(opurl('teacher'))).then(m => m.text());
 		check('the normal editor has no banner and can be changed', !page.includes('observerbar') && /design:true/.test(page), 'page');
 
+		// Forbidden components for a group
+		const RISKY = '<script total>exports.id = "riskycom"; exports.name = "Runs a command"; exports.version = "1.0.0"; exports.icon = "ti ti-terminal"; exports.group = "Test"; exports.config = {}; exports.inputs = [{ id: "input", name: "Input" }]; exports.outputs = []; exports.make = function(instance) { const cp = require("child_process"); };</script>';
+		const SAFE = '<script total>exports.id = "safecom"; exports.name = "Safe one"; exports.version = "1.0.0"; exports.icon = "ti ti-code"; exports.group = "Test"; exports.config = {}; exports.inputs = [{ id: "input", name: "Input" }]; exports.outputs = []; exports.make = function(instance) {};</script>';
+		r = await api('teacher', 'Streams|import', { data: JSON.stringify({ id: 'x', name: 'Risky library', design: {}, components: { riskycom: RISKY, safecom: SAFE } }) });
+		check('the teacher imports a FlowStream with a risky component', r.json && r.json.success, r.text);
+		await sleep(1500);
+		r = await api('s1', 'Classroom|denied');
+		check('a student cannot read the forbidden components', denied(r), r.text);
+		r = await api('s1', 'Classroom|denied_save', { group: 'g1', ids: ['safecom'], auto: false });
+		check('a student cannot forbid components', denied(r), r.text);
+		r = await api('teacher', 'Classroom|denied');
+		const poolr = (r.json && r.json.pool) || [];
+		check('the pool marks the components that look like they reach files or the shell', poolr.find(m => m.id === 'riskycom') && poolr.find(m => m.id === 'riskycom').risky === true && poolr.find(m => m.id === 'safecom') && poolr.find(m => m.id === 'safecom').risky === false, JSON.stringify(poolr.map(m => [m.id, m.risky])));
+		const libr = ((await api('teacher', 'Streams')).json || []).find(m => m.name === 'Risky library') || {};
+		r = await api('teacher', 'Classroom|palette_save', { group: 'g1', items: [{ source: libr.id, id: 'riskycom' }, { source: libr.id, id: 'safecom' }] });
+		await sleep(3000);
+		const comps = async id => ((await api('teacher', 'Streams|raw', { id: id })).json || {}).components || {};
+		const target = ((await api('s1', 'Streams')).json || []).find(m => m.name === 'With the palette') || {};
+		let cc = await comps(target.id);
+		check('with the palette the FlowStreams of the group have both components', 'riskycom' in cc && 'safecom' in cc, JSON.stringify(Object.keys(cc)));
+		r = await api('teacher', 'Classroom|denied_save', { group: 'g1', ids: ['safecom'], auto: false });
+		check('the teacher forbids a component for a group', r.json && r.json.success && r.json.updated > 0, r.text);
+		await sleep(3000);
+		cc = await comps(target.id);
+		check('a forbidden component is taken out of the FlowStreams of the group', !('safecom' in cc) && 'riskycom' in cc, JSON.stringify(Object.keys(cc)));
+		r = await api('teacher', 'Classroom|denied_save', { group: 'g1', ids: [], auto: true });
+		await sleep(3000);
+		cc = await comps(target.id);
+		check('the automatic rule takes out the components that look risky, and the ones no longer forbidden come back', !('riskycom' in cc) && 'safecom' in cc, JSON.stringify(Object.keys(cc)));
+		r = await api('s1', 'Streams|save', { name: 'After forbidding', group: 'g1', icon: 'ti ti-microchip' });
+		await sleep(1500);
+		const after = ((await api('s1', 'Streams')).json || []).find(m => m.name === 'After forbidding') || {};
+		cc = await comps(after.id);
+		check('a new FlowStream of the group is born without the forbidden components', after.id && 'safecom' in cc && !('riskycom' in cc), JSON.stringify(Object.keys(cc)));
+		r = await api('s2', 'Streams|save', { name: 'Other group again', group: 'g2', icon: 'ti ti-microchip' });
+		await sleep(1500);
+		const otherg = ((await api('s2', 'Streams')).json || []).find(m => m.name === 'Other group again') || {};
+		check('the rules of a group do not reach the other groups', otherg.id && !('safecom' in (await comps(otherg.id))), 'leak');
+		r = await api('teacher', 'Classroom|denied_save', { group: 'g1', ids: [], auto: false });
+		r = await api('teacher', 'Classroom|palette_save', { group: 'g1', items: [] });
+		r = await api('teacher', 'Classroom|denied');
+		check('without rules the group has nothing forbidden', r.json && !(r.json.denied && r.json.denied.g1), r.text);
+
 		// Exam mode
 		const iso = ms => new Date(Date.now() + ms).toISOString();
 		const own2 = async () => ((await api('s2', 'Streams')).json || []).filter(m => m.ownerid === 's2');
