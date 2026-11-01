@@ -142,6 +142,7 @@ NEWACTION('Streams|save', {
 			TRANSFORM('flowstream.create', model, function(err, model) {
 				Flow.db[model.id] = model;
 				Flow.load(model, ERROR('FlowStream.init'));
+				FUNC.activity('create', $.user, model);
 			});
 
 		} else {
@@ -208,6 +209,7 @@ NEWACTION('Streams|remove', {
 			Flow.remove(id);
 			Flow.emit('save');
 
+			FUNC.activity('remove', $.user, item);
 			$.audit(item.name);
 			$.success();
 		} else
@@ -286,6 +288,7 @@ NEWACTION('Streams|pause', {
 				if (instance.flow.stats && is != null)
 					instance.flow.stats.paused = is;
 				instance.pause(is);
+				FUNC.activity(is ? 'pause' : 'resume', $.user, item);
 
 				// A student that resumes his FlowStream starts the count of the days without work again
 				if (!is && !$.user.sa) {
@@ -316,6 +319,7 @@ NEWACTION('Streams|restart', {
 				item.dtresumed = NOW;
 				delete item.autopaused;
 			}
+			FUNC.activity('restart', $.user, item);
 			$.success();
 		}
 		else
@@ -334,8 +338,10 @@ NEWACTION('Streams|export', {
 		if (item && FUNC.streamaccess($.user, item)) {
 			if (FUNC.examrestricted($.user, item.group))
 				$.invalid('@(Not allowed during the exam)');
-			else
+			else {
+				FUNC.activity('export', $.user, item);
 				$.success(JSON.stringify(FUNC.streamdata($.user, item), skip, '\t'));
+			}
 		}
 		else
 			$.invalid(404);
@@ -445,8 +451,10 @@ NEWACTION('Streams|deliver', {
 		FUNC.deliver(item, $.user, function(err, entry) {
 			if (err)
 				$.invalid(err);
-			else
+			else {
+				FUNC.activity('deliver', $.user, item, '#' + entry.number);
 				$.callback({ success: true, value: entry.id, number: entry.number, dtcreated: entry.dtcreated });
+			}
 		});
 	}
 });
@@ -487,6 +495,7 @@ NEWACTION('Streams|clone', {
 		}
 
 		FUNC.streamcopy(item, opt, function(err, data) {
+			!err && FUNC.activity('clone', $.user, data, item.name);
 			$.callback({ success: !err, value: data && data.id, error: err ? err.toString() : null });
 			Flow.save();
 		});

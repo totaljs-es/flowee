@@ -186,6 +186,7 @@ docker rm -f flowee
 		<tr><td><code>sso</code></td><td>Address of an OpenPlatform in the cloud for the sign-in.</td></tr>
 		<tr><td><code>flowstream_worker</code></td><td><code>fork</code> (default here): each FlowStream in its own process.</td></tr>
 		<tr><td><code>flowstream_memory</code></td><td>Maximum memory in MB of each FlowStream (<code>0</code> is automatic). Recommended in class.</td></tr>
+		<tr><td><code>activity_days</code></td><td>Days that the activity log is kept (365 by default, 0 forever).</td></tr>
 		<tr><td><code>max_streams</code>, <code>idle_days</code></td><td>Default of the limits for each student (FlowStreams and days without work). The teacher can change them in Classroom.</td></tr>
 		<tr><td><code>$proxytimeout</code></td><td>Timeout of the FlowStreams proxy, in seconds.</td></tr>
 		</tbody>
@@ -202,6 +203,7 @@ docker rm -f flowee
 		<div class="card"><h3>Roles and groups</h3><p>Teacher and students, organised in the groups of OpenPlatform. Each student works only in their own space.</p></div>
 		<div class="card"><h3>Practice templates</h3><p>Hand out an exercise to a whole group or give every student their own copy, and restore it whenever you need.</p></div>
 		<div class="card"><h3>Class overview</h3><p>See who has started, who has errors and who needs help, and open any student’s FlowStream to guide them.</p></div>
+		<div class="card"><h3>Activity log</h3><p>See what each student does and when, filter it and download it. It is kept only for the time you choose, and you can clear it.</p></div>
 		<div class="card"><h3>Observe in real time</h3><p>Follow the editor of any student live, in read-only mode, to see how they work and help when they get stuck.</p></div>
 		<div class="card"><h3>Exam mode</h3><p>Open and close the access of a group by dates. During the exam nothing leaves: no exporting or copying. When it ends, every student’s work is delivered by itself.</p></div>
 		<div class="card"><h3>Deliveries</h3><p>Students hand in their work with one click. You get a frozen copy with its date, open it as a FlowStream and download a whole group to grade it.</p></div>

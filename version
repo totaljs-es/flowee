@@ -8,6 +8,7 @@ Version: 2.1
 - sign in with OpenPlatform cloud (`sso` in the config): the groups and the teacher come from OpenPlatform, nobody can impersonate groups
 - the students cannot read, edit or remove the code of the components, and they cannot import FlowStreams (they can duplicate their own); a FlowStream that a student exports or reads does not carry the code of the components
 - every setting of the config can be given as an environment variable (FLOWEE_ plus the key in upper case), also the tokens of OpenPlatform; the docker-compose.yaml lists them
+- activity log (Classroom): what each student does and when, with filters, download as CSV, retention in days (FLOWEE_ACTIVITY_DAYS) and a button to clear it
 - forbidden components for each group (Classroom): they are taken out of the FlowStreams of the group; the ones that look like they reach files or the shell are marked and can be forbidden automatically
 - observe in real time (Classroom): the teacher follows the editor of a student live, read only (the server refuses any change)
 - exam mode (Classroom): the students of a group can work only between a start and an end, exporting and duplicating can be blocked while it is open, and the work is delivered by itself when it ends

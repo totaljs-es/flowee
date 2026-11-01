@@ -240,6 +240,7 @@ FUNC.idlepause = function() {
 			instance.flow.stats.paused = true;
 			instance.pause(true);
 			item.autopaused = NOW;
+			FUNC.activity('autopause', { id: item.ownerid, name: item.ownername }, item);
 			paused++;
 		}
 	}

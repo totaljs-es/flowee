@@ -464,6 +464,51 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		r = await api('teacher', 'Classroom|denied');
 		check('without rules the group has nothing forbidden', r.json && !(r.json.denied && r.json.denied.g1), r.text);
 
+		// Activity of the students
+		r = await api('teacher', 'Classroom|activity_clear');
+		check('the teacher clears the activity', r.json && r.json.success, r.text);
+		r = await api('s1', 'Classroom|activity', {});
+		check('a student cannot read the activity', denied(r), r.text);
+		r = await api('s1', 'Classroom|activity_clear');
+		check('a student cannot clear the activity', denied(r), r.text);
+		r = await api('s1', 'Classroom|activity_download', {});
+		check('a student cannot download the activity', denied(r), r.text);
+		r = await api('s1', 'Streams|save', { name: 'Activity flow', group: 'g1', icon: 'ti ti-microchip' });
+		await sleep(1200);
+		const act = ((await api('s1', 'Streams')).json || []).find(m => m.name === 'Activity flow') || {};
+		await api('s1', 'Streams|pause', { id: act.id, is: 1 });
+		await api('s1', 'Streams|pause', { id: act.id, is: 0 });
+		await api('s1', 'Streams|restart', { id: act.id });
+		await api('s1', 'Variables|save', { id: act.id, data: { a: 1 } });
+		await api('s1', 'Streams|export', { id: act.id });
+		await api('s1', 'Streams|deliver', { id: act.id });
+		await api('s1', 'Streams|clone', { id: act.id });
+		ws = await socket('s1', act.id);
+		ws = await socket('teacher', act.id);
+		await api('s2', 'Streams|save', { name: 'Other student activity', group: 'g2', icon: 'ti ti-microchip' });
+		await sleep(1500);
+		r = await api('teacher', 'Classroom|activity', { userid: 's1' });
+		const types1 = ((r.json && r.json.events) || []).map(m => m.type);
+		check('the activity of a student has what he did, newest first', ['create', 'pause', 'resume', 'restart', 'variables', 'export', 'deliver', 'clone', 'open'].every(t => types1.includes(t)), JSON.stringify(types1));
+		const ev1 = (r.json && r.json.events) || [];
+		check('every event has the date, the student, the group and the FlowStream', ev1.every(m => m.t && m.userid && m.user) && ev1.find(m => m.type === 'create').group === 'g1' && ev1.find(m => m.type === 'create').stream === 'Activity flow', JSON.stringify(ev1[0]));
+		check('the events are newest first', ev1.every((m, i) => i === 0 || m.t <= ev1[i - 1].t), 'order');
+		check('the delivery says its number', ev1.find(m => m.type === 'deliver').detail === '#1' || /#/.test(ev1.find(m => m.type === 'deliver').detail), JSON.stringify(ev1.find(m => m.type === 'deliver')));
+		check('the teacher opening the editor is registered with his name', ((await api('teacher', 'Classroom|activity', { search: 'Teacher' })).json.events || []).some(m => m.type === 'open' && m.sa), 'teacher');
+		r = await api('teacher', 'Classroom|activity', { group: 'g2' });
+		check('the activity can be filtered by group', (r.json.events || []).length > 0 && r.json.events.every(m => m.group === 'g2'), r.text);
+		check('another group does not have the activity of the first one', !(r.json.events || []).some(m => m.userid === 's1'), 'leak');
+		r = await api('teacher', 'Classroom|activity', { userid: 's1', type: 'deliver' });
+		check('the activity can be filtered by type', (r.json.events || []).length === 1 && r.json.events[0].type === 'deliver', r.text);
+		r = await api('teacher', 'Classroom|activity', { userid: 's1', limit: 2 });
+		check('the limit cuts the list but the total is kept', r.json.events.length === 2 && r.json.total > 2, r.text);
+		r = await api('teacher', 'Classroom|activity_download', { userid: 's1' });
+		const csv = (r.json && r.json.value) || '';
+		check('the activity is downloaded as a table with a header', csv.startsWith('date,type,user,teacher,group,flowstream,owner,detail') && csv.split('\n').length > 5 && csv.includes('"deliver"'), csv.slice(0, 120));
+		r = await api('teacher', 'Classroom|activity_clear');
+		r = await api('teacher', 'Classroom|activity', {});
+		check('after clearing there is no activity', r.json && r.json.total === 0, r.text);
+
 		// Exam mode
 		const iso = ms => new Date(Date.now() + ms).toISOString();
 		const own2 = async () => ((await api('s2', 'Streams')).json || []).filter(m => m.ownerid === 's2');

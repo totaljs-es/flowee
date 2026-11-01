@@ -18,6 +18,8 @@
 	.CLASS .cr-field { flex: 0 0 210px; max-width: 100%; }
 	.CLASS .cr-date { width: 100%; height: 34px; padding: 0 10px; border: 1px solid #E0E0E0; border-radius: var(--radius); background: #FFF; color: #000; font: inherit; }
 	.ui-dark .CLASS .cr-date { background: #303030; color: #E0E0E0; border-color: #404040; }
+	.CLASS .cr-activity-bar { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin-bottom: 12px; }
+	.CLASS .cr-activity-bar > ui-component { flex: 0 0 220px; max-width: 100%; }
 	.CLASS .cr-risk { background: #FFF1D6; color: #9A5B00; }
 	.CLASS .cr-palette-group { max-width: 320px; margin-bottom: 12px; }
 	.CLASS .cr-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin-bottom: 14px; }
@@ -237,6 +239,49 @@
 				</script>
 			</ui-bind>
 
+			<div class="caption m" style="margin-top:24px"><label><i class="ti ti-list-details"></i>@(Activity)</label></div>
+			<div class="help m">@(What the students do with their FlowStreams. The filters of the students table (group and text) apply here too. It contains personal data: it is kept only for the days that the administrator sets and you can clear it.)</div>
+			<div class="cr-activity-bar">
+				<ui-component name="input" path="?.aperiod" config="dirsource:?.periods;dirraw:1;required:1">@(Period)</ui-component>
+				<button class="exec cr-btn sec" data-exec="?/activitydownload"><i class="ti ti-download"></i>@(Download the activity)</button>
+				<button class="exec cr-btn sec" data-exec="?/activityclear"><i class="ti ti-trash"></i>@(Clear the activity)</button>
+			</div>
+			<ui-bind path="?.ameta" config="template" class="block">
+				<script type="text/html">
+					{{ if value }}<div class="help m">{{ value }}</div>{{ fi }}
+				</script>
+			</ui-bind>
+			<ui-bind path="?.arows" config="template" class="block">
+				<script type="text/html">
+					{{ if value && value.length }}
+					<table class="cr-table">
+						<thead>
+							<tr>
+								<th>@(Date)</th>
+								<th>@(Who)</th>
+								<th>@(Group)</th>
+								<th>@(FlowStream)</th>
+								<th>@(Activity)</th>
+							</tr>
+						</thead>
+						<tbody>
+							{{ foreach m in value }}
+							<tr>
+								<td>{{ m.t | format('yyyy-MM-dd HH:mm:ss') }}</td>
+								<td><b>{{ m.user }}</b>{{ if m.sa }} <span class="cr-badge">@(Teacher)</span>{{ fi }}</td>
+								<td>{{ m.groupname }}</td>
+								<td>{{ m.stream }}{{ if m.owner && m.owner !== m.user }}<div class="help">{{ m.owner }}</div>{{ fi }}</td>
+								<td>{{ m.label }}{{ if m.detail }} <span class="help">{{ m.detail }}</span>{{ fi }}</td>
+							</tr>
+							{{ end }}
+						</tbody>
+					</table>
+					{{ else }}
+					<div class="help">@(There is no activity yet.)</div>
+					{{ fi }}
+				</script>
+			</ui-bind>
+
 		</div>
 	</ui-component>
 </ui-plugin>
@@ -340,6 +385,13 @@
 					exports.set('groups', groups);
 					exports.set('templates', templates);
 					exports.filter();
+
+					if (!exports.model.periods) {
+						exports.set('periods', [{ id: 1, name: '@(Last 24 hours)' }, { id: 7, name: '@(Last 7 days)' }, { id: 30, name: '@(Last 30 days)' }, { id: 0, name: '@(All the time)' }]);
+						exports.set('aperiod', 7);
+					}
+
+					exports.activityload();
 				});
 			});
 		};
@@ -410,6 +462,53 @@
 		};
 
 		// The components of the pool, selected when the group forbids them
+		var labels = {
+			open: '@(Opened the editor)', save: '@(Applied changes)', create: '@(Created a FlowStream)', clone: '@(Duplicated a FlowStream)', remove: '@(Removed a FlowStream)',
+			deliver: '@(Delivered)', pause: '@(Paused)', resume: '@(Resumed)', restart: '@(Restarted)', variables: '@(Changed the variables)', export: '@(Exported)',
+			autopause: '@(Paused for inactivity)', autodeliver: '@(Delivered at the end of the exam)', observe: '@(Observed by the teacher)'
+		};
+
+		exports.activityload = function() {
+
+			var model = exports.model || {};
+			var options = { group: model.fgroup || '', search: model.fsearch || '', days: +model.aperiod || 0 };
+
+			exports.tapi('Classroom|activity ERROR', options, function(response) {
+
+				var names = {};
+				for (var g of (model.groups || []))
+					names[g.id] = g.name;
+
+				var rows = response.events || [];
+
+				for (var m of rows) {
+					m.label = labels[m.type] || m.type;
+					m.groupname = m.group ? (names[m.group] || m.group) : '';
+				}
+
+				exports.set('arows', rows);
+				exports.set('ameta', response.total + ' @(events)' + (response.total > rows.length ? (' · @(showing the last)' + ' ' + rows.length) : '') + (response.retention ? (' · @(kept for)' + ' ' + response.retention + ' @(days)') : ' · @(kept without limit)'));
+			});
+		};
+
+		exports.activitydownload = function() {
+			var model = exports.model;
+			exports.tapi('Classroom|activity_download ERROR @showloading', { group: model.fgroup || '', search: model.fsearch || '', days: +model.aperiod || 0 }, function(response) {
+				SETTER('loading/hide', 300);
+				SETTER('filesaver/save', 'activity.csv', new Blob([response.value], { type: 'text/csv; charset=utf-8' }));
+			});
+		};
+
+		exports.activityclear = function() {
+			SETTER('approve/show', '@(All the activity will be deleted. Continue?)', '"ti ti-trash" @(Clear)', function() {
+				exports.tapi('Classroom|activity_clear ERROR @showloading', function() {
+					SETTER('loading/hide', 300);
+					exports.activityload();
+					SETTER('notify/success', '@(The activity has been cleared.)');
+				});
+			});
+		};
+
 		exports.deniedbuild = function() {
 
 			var model = exports.model;
@@ -553,6 +652,9 @@
 			});
 		};
 
+		exports.watch('aperiod', () => exports.activityload());
+		exports.watch('fgroup', () => exports.activityload());
+		exports.watch('fsearch', () => setTimeout(() => exports.activityload(), 400));
 		exports.watch('pgroup', () => exports.palettebuild());
 		exports.watch('dgroup', () => exports.deniedbuild());
 		exports.watch('fgroup', () => exports.filter());

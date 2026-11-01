@@ -59,6 +59,9 @@ FUNC.deliver = function(item, user, callback, auto) {
 
 		items.push(entry);
 
+		// The exam delivers by itself: the activity says whose work it was
+		auto && FUNC.activity('autodeliver', { id: entry.ownerid, name: entry.ownername }, item, '#' + entry.number);
+
 		// Only the last deliveries of a FlowStream are kept
 		previous.sort((a, b) => a.number - b.number);
 

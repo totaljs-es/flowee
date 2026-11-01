@@ -77,6 +77,12 @@ The students cannot add or edit components, so you decide which ones each group 
 
 A component that you remove from a palette stays in the FlowStreams that already have it. The palettes are kept in the preferences of the application (`palettes`).
 
+### Activity
+
+In **Classroom**, *Activity* lists what the students do with their FlowStreams, newest first: they open the editor, apply changes (one record every minute at most), create, duplicate, remove, pause, resume, restart, change the variables, export or deliver; and what the application does by itself (pausing for inactivity, delivering when an exam ends). It also records when a teacher opens or observes the editor of a student, with the name of the teacher. It uses the filters of the students table (group and text) and a period (24 hours, 7 days, 30 days or all the time), and it can be downloaded as a table (CSV).
+
+The activity has **personal data**. It is kept in `databases/activity/` (one file for each month, in the `databases` volume of the container), only for **365 days** by default: `FLOWEE_ACTIVITY_DAYS` changes it and `0` keeps it forever. The months that are older than the retention are deleted every day, and the teacher can clear everything with *Clear the activity*. Tell the students that it is recorded.
+
 ### Forbidden components
 
 In **Classroom**, *Forbidden components* takes components away from a group (the palette adds, this removes):
@@ -153,6 +159,7 @@ Every setting can also be given as an environment variable: `FLOWEE_` plus the k
 | `FLOWEE_PROXYTIMEOUT` | `$proxytimeout` |
 | `FLOWEE_NAME` | `name` |
 | `FLOWEE_MAX_STREAMS`, `FLOWEE_IDLE_DAYS` | the default of the limits for each student (see Limits for each student) |
+| `FLOWEE_ACTIVITY_DAYS` | the days that the activity is kept (365 by default, 0 forever) |
 
 ```bash
 docker run -p 8000:8000 -e FLOWEE_SSO=https://my.openplatform.cloud -e FLOWEE_FLOWSTREAM_MEMORY=512 ghcr.io/totaljs-es/flowee
@@ -188,10 +195,7 @@ The test starts a fake OpenPlatform and a temporary copy of the application, and
 
 ## Ideas for the next versions
 
-We are still working on additional tasks in collaboration with UPM. Some ideas to talk about:
-
-- A record of the activity of each student.
-
+We are still working on additional tasks in collaboration with UPM, and we are open to ideas. Tell us what your class needs.
 
 ## Installation
 

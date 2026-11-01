@@ -17,6 +17,7 @@ services:
       FLOWEE_NAME: ${FLOWEE_NAME:-}
       FLOWEE_MAX_STREAMS: ${FLOWEE_MAX_STREAMS:-}
       FLOWEE_IDLE_DAYS: ${FLOWEE_IDLE_DAYS:-}
+      FLOWEE_ACTIVITY_DAYS: ${FLOWEE_ACTIVITY_DAYS:-}
     volumes:
       - databases:/www/databases/
       - flowstream:/www/flowstream/

@@ -90,8 +90,10 @@ function socket($) {
 	let id = $.params.id;
 
 	Flow.socket(id, $, function(client, next) {
-		if (FUNC.streamaccess(client.user, id))
+		if (FUNC.streamaccess(client.user, id)) {
+			FUNC.activity(client.query && client.query.observer === '1' ? 'observe' : 'open', client.user, Flow.db[id]);
 			next();
+		}
 		else
 			client.close();
 	}, function(client, msg) {
@@ -103,6 +105,10 @@ function socket($) {
 		// An editor opened to observe is read only: the server refuses the messages that change something
 		if (client.query && client.query.observer === '1' && !OBSERVER[msg.TYPE])
 			return '@(Observing: it is read only)';
+
+		// The student applied changes in the editor
+		if (msg.TYPE === 'save')
+			FUNC.activity('save', client.user, Flow.db[id]);
 
 		return COMPONENTCODE[msg.TYPE] && !(client.user && client.user.sa) ? '@(Only the teachers can work with the code of the components)' : true;
 	});

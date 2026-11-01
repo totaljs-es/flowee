@@ -505,3 +505,52 @@ NEWACTION('Classroom|denied_save', {
 		});
 	}
 });
+
+
+// Activity of the students (what they do with their FlowStreams)
+NEWACTION('Classroom|activity', {
+	name: 'Activity of the students',
+	route: '+API ?',
+	input: 'group:String, userid:String, type:String, search:String, days:Number, limit:Number',
+	sa: true,
+	action: function($, model) {
+		FUNC.activityread(model, function(err, output) {
+			output.retention = FUNC.activitydays();
+			$.callback(output);
+		});
+	}
+});
+
+NEWACTION('Classroom|activity_download', {
+	name: 'Download the activity of the students',
+	route: '+API ? <300s',
+	input: 'group:String, userid:String, type:String, search:String, days:Number',
+	sa: true,
+	audit: true,
+	action: function($, model) {
+
+		model.limit = 5000;
+
+		FUNC.activityread(model, function(err, output) {
+
+			let quote = value => '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"';
+			let lines = ['date,type,user,teacher,group,flowstream,owner,detail'];
+
+			for (let m of output.events)
+				lines.push([m.t, m.type, m.user, m.sa ? 'yes' : '', m.group, m.stream, m.owner, m.detail].map(quote).join(','));
+
+			$.success(lines.join('\n'));
+		});
+	}
+});
+
+// Clears the activity (the months older than the retention are cleared by the application every day)
+NEWACTION('Classroom|activity_clear', {
+	name: 'Clear the activity of the students',
+	route: '+API ?',
+	sa: true,
+	audit: true,
+	action: function($) {
+		FUNC.activityclear(true, removed => $.callback({ success: true, removed: removed }));
+	}
+});

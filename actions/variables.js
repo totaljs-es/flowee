@@ -37,6 +37,7 @@ NEWACTION('Variables|save', {
 
 			if (fs && FUNC.streamaccess($.user, fs)) {
 				fs.variables = model.data;
+				FUNC.activity('variables', $.user, fs);
 				Flow.emit('save');
 				Flow.instances[id].variables(fs.variables);
 			} else {

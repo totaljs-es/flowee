@@ -358,3 +358,34 @@ T1rouq10                 : Parece que accede a archivos o al shell
 T1ufta1b                 : Guardar los componentes prohibidos
 T1ou52hj                 : Se han guardado los componentes prohibidos.
 T1cp1qw0                 : FlowStreams actualizados
+T18pohf3                 : Actividad
+Trj6r6l                  : Lo que hacen los alumnos con sus FlowStreams. Los filtros de la tabla de alumnos (grupo y texto) también se aplican aquí. Contiene datos personales: solo se conserva los días que fije el administrador y puedes borrarla.
+T13h80kh                 : Periodo
+Tjezsra                  : Descargar la actividad
+Ttdu6ep                  : Borrar la actividad
+T1v32                    : Quién
+T3q05vm                  : Profesor
+Twi5e5u                  : Todavía no hay actividad.
+T195iwj                  : Abrió el editor
+T1h6y8lc                 : Aplicó cambios
+T8792w5                  : Creó un FlowStream
+Taf6l4k                  : Duplicó un FlowStream
+T13s5izx                 : Quitó un FlowStream
+T19ojjjr                 : Reanudó
+T2eoh5a                  : Reinició
+T2bpjwc                  : Cambió las variables
+T148vyb7                 : Exportó
+T9w2upp                  : Pausado por inactividad
+T1wbw92q                 : Entregado al terminar el examen
+T1lu3mzm                 : Observado por el profesor
+T1doady1                 : eventos
+T1nc0h5s                 : mostrando los últimos
+T4b08lj                  : se conserva
+T1txlj                   : días
+Tn9gk2p                  : se conserva sin límite
+Tmsjl8f                  : Se borrará toda la actividad. ¿Continuar?
+T9uuhn2                  : Se ha borrado la actividad.
+T7i9nmj                  : Últimas 24 horas
+Tu9iczu                  : Últimos 7 días
+Txn8rm8                  : Últimos 30 días
+T16qdv4r                 : Todo el tiempo
