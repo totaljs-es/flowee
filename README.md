@@ -76,6 +76,7 @@ The file `config` has the usual settings of Flow plus these:
 | Setting | What it does |
 |---|---|
 | `op_groups` | Optional. The address of the users API of OpenPlatform (`https://my_openplatform/users/?token=[]`, it is enabled in the settings of OpenPlatform). It is needed for **one copy for each student**; without it a template is copied once for each group. The groups of the users come with the session of OpenPlatform, so it is not needed for the rest. |
+| `sso` | Optional. The address of an OpenPlatform in the cloud (`https://my.openplatform.cloud`): the sign-in is verified there and the groups and the teacher (`sa`) come from its session. |
 | `flowstream_worker` | `fork` (default of this edition): each FlowStream runs in its own process, so a student cannot stop the others. |
 | `flowstream_memory` | Maximum memory in MB of each FlowStream (`0` is automatic). Recommended in a class. |
 | `$proxytimeout` | Timeout of the proxy of the FlowStreams, in seconds. |
@@ -88,7 +89,8 @@ Every FlowStream is an independent process: a class with many students needs mem
 2. Create a **group for each class** (or for each student if you want the work of each student to stay private even without owners).
 3. Give the application to the groups of the students and of the teachers. The users with `sa` are the teachers.
 4. The application offers two permissions: **Create Flows** (`create`) and **Remove Flows** (`remove`). Give `create` to the students.
-5. Optional: enable the public API of the users in OpenPlatform and put its address in `op_groups`.
+5. Open Flow EE for the first time, sign in with the default account that the login page shows and, in the settings, paste the **request token** and the **response token** of the application (the same ones that you gave to OpenPlatform). From then on the users enter through OpenPlatform.
+6. Optional: enable the public API of the users in OpenPlatform and put its address in `op_groups`.
 
 ## Data
 
@@ -147,5 +149,11 @@ From the GitHub Container Registry ([package](https://github.com/totaljs-es/flow
 
 ```bash
 docker pull ghcr.io/totaljs-es/flowee
-docker run -p 8000:8000 ghcr.io/totaljs-es/flowee
+docker run -p 8000:8000 \
+  -v flowee-databases:/www/databases -v flowee-flowstream:/www/flowstream -v flowee-private:/www/private \
+  ghcr.io/totaljs-es/flowee
 ```
+
+The three volumes keep the settings, the FlowStreams of the class and the private files when the container is replaced by a newer image. With the source code, `docker compose up` does the same.
+
+There is a page with all the information of this edition in [`docs/index.html`](docs/index.html).

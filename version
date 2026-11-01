@@ -1,3 +1,15 @@
+2.1
+
+===================================
+Version: 2.1
+===================================
+
+- updated with Total.js Flow 11.1: jComponent and the fix of dragging components
+- sign in with OpenPlatform cloud (`sso` in the config): the groups and the teacher come from OpenPlatform, nobody can impersonate groups
+- a template of a group is only for the teachers: the students of the group do not see it
+- the Docker image runs from the source: there are no bundles to maintain
+- the image keeps its data in `/www/databases`, `/www/flowstream` and `/www/private`
+
 2.0
 
 ===================================

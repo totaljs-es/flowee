@@ -1,0 +1,16 @@
+.git
+.github
+.claude
+.agents
+.DS_Store
+node_modules
+tests
+logs
+databases
+flowstream
+private
+tmp
+index.js.json
+index.js.map
+index.pid
+package-lock.json

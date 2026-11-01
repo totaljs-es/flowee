@@ -1,18 +1,16 @@
 FROM node:24-alpine
 MAINTAINER totaljses "info@totaljs.es"
 
-VOLUME /www
 WORKDIR /www
-RUN mkdir -p /www/bundles
 
-COPY index.js .
-COPY config .
 COPY package.json .
-COPY /--bundles--/app.bundle ./bundles/
-COPY /--bundles--/bookmarks.bundle ./bundles/
-COPY /--bundles--/classroom.bundle ./bundles/
+RUN npm install --omit=dev
 
-RUN npm install
+COPY . .
+
+# The data of the classroom: the FlowStreams, their settings and the private files
+VOLUME ["/www/databases", "/www/flowstream", "/www/private"]
+
 EXPOSE 8000
 
 CMD [ "npm", "start" ]

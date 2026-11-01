@@ -4,8 +4,10 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - databases:/www/.src/databases/
-      - flowstream:/www/.src/flowstream/
+      - databases:/www/databases/
+      - flowstream:/www/flowstream/
+      - private:/www/private/
 volumes:
   databases:
   flowstream:
+  private:

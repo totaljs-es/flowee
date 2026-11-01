@@ -37,18 +37,17 @@ docker compose up                                      # docker-compose.yaml kee
 - `modules/openplatform.js` talks to OpenPlatform; `modules/cdn.js` is the CDN cache.
 - `plugins/classroom/` (the teacher panel) and `plugins/bookmarks/` are the plugins of the interface: `index.js` (backend) and `public/` (frontend).
 - `--components--/` are extra Flow components; `--extensions--/` and `extensions.js` load 3rd-party extensions into each FlowStream (do not remove `extensions.js`).
-- `--bundles--/*.bundle` are the **built** application and plugins; `bundle.sh` builds them. The Docker image runs from the bundles, not from the source.
+- The Docker image runs from the source (`COPY . .`, see `.dockerignore`): there are no built bundles to maintain.
 - `tests/education.js` is the test. `resources/es.resource` has the Spanish texts. `Dockerfile` and `docker-compose.yaml` build and run the image.
 - `.github/workflows/docker-image.yml` builds the image (linux/amd64 and linux/arm64) and publishes it to `ghcr.io/<owner>/flowee` on every push to `master` (`latest`, `sha-…`) and on every tag `v*` (`1.2.3`, `1.2`). A pull request only builds it. It needs no secrets.
-- For agents: this file, `CLAUDE.md` and `GEMINI.md` (they import it), `.github/copilot-instructions.md`, `.claude/skills/` (two checklists: change and bundle, verify a change), `.claude/settings.json` (the commands that are safe to run without asking), and `llms.txt`. For Codex this file is the native entry point; the entries of `.agents/skills/` reuse the checklists of `.claude/skills/`.
+- For agents: this file, `CLAUDE.md` and `GEMINI.md` (they import it), `.github/copilot-instructions.md`, `.claude/skills/` (two checklists: change the application, verify a change), `.claude/settings.json` (the commands that are safe to run without asking), and `llms.txt`. For Codex this file is the native entry point; the entries of `.agents/skills/` reuse the checklists of `.claude/skills/`.
 
 ## Commands
 
 ```bash
 npm install
-npm test                      # tests/education.js: 45 checks, starts a fake OpenPlatform and a temporary copy of the app
+npm test                      # tests/education.js: 47 checks, starts a fake OpenPlatform and a temporary copy of the app
 npm start                     # port 8000
-./bundle.sh                   # rebuild --bundles--/*.bundle from the source
 docker build -t flowee .      # the image
 ```
 
@@ -63,7 +62,7 @@ The test writes nothing in this folder. `TOTAL5=/path/to/total5 npm test` tests 
 
 ## Pitfalls
 
-- **The bundles are the product.** After a change in `actions/`, `controllers/`, `definitions/`, `modules/`, `views/`, `resources/`, `public/`, `extensions.js`, `version` or a plugin, run `./bundle.sh` and commit the regenerated `--bundles--/*.bundle`. The `Dockerfile` copies `app.bundle`, `bookmarks.bundle` and `classroom.bundle` by name: a new plugin needs its own `COPY` line there.
+- A new folder or file that the application needs at run time must not be listed in `.dockerignore`: the image copies the whole folder.
 - **Do not commit** runtime state: `databases/`, `flowstream/`, `logs/`, `node_modules/`, `index.js.json`, `index.js.map`, `package-lock.json` (all in `.gitignore`).
 - The image has no lock file: `npm install` takes `total5` `latest`. Say so if a behaviour depends on the version of the framework.
 - A student must never be able to stop the others: keep `flowstream_worker : fork` as the default of this edition.
