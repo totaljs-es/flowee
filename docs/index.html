@@ -32,6 +32,7 @@
 		<nav class="top-links" aria-label="Main">
 			<a href="#changes">What changes</a>
 			<a href="#classroom">In the classroom</a>
+			<a href="#tools">Teacher tools</a>
 			<a href="#docker">Docker</a>
 			<a href="#openplatform">OpenPlatform</a>
 			<a class="lang" href="es/" hreflang="es" lang="es">Español</a>
@@ -122,6 +123,87 @@ Classroom → Assign → <span class="t-s">"One copy for each student"</span>
 		</div>
 	</div>
 	<p class="note top">A copy keeps the design, components, variables and description of the template, and starts running by itself. Students enter through OpenPlatform, open Flow and work on their copy; they can create more FlowStreams in their groups if they have the <code>create</code> permission.</p>
+</section>
+
+<section class="section" id="tools" aria-labelledby="tools-title">
+	<div class="section-head">
+		<h2 id="tools-title">Everything the teacher can do</h2>
+		<p>Every tool lives in the <strong>Classroom</strong> panel, which only teachers see. This is what each one does and how it works.</p>
+	</div>
+	<div class="tool" id="tool-templates">
+		<div class="tool-head"><h3>Practice templates</h3><p>Build an exercise once and hand it out to the whole class.</p></div>
+		<ul>
+			<li>In the menu of any FlowStream choose <strong>Use as template</strong>. A template is never shown to the students, not even to those of its group.</li>
+			<li>In <strong>Classroom</strong> press <strong>Assign</strong> and choose the groups. Each group gets <strong>one shared copy</strong>, or with <strong>One copy for each student of the group</strong> every student gets their own, named <em>template · student</em>, visible only to them and to you. The second option needs the users API of OpenPlatform (<code>op_groups</code>).</li>
+			<li>A copy keeps the design, the components, the variables and the description, and starts running by itself. Assigning again never repeats a copy that already exists, so you can use it when new students arrive.</li>
+			<li><strong>Restore from the template</strong> replaces the work of a student with the template, to start again.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-overview">
+		<div class="tool-head"><h3>Class overview</h3><p>See at a glance who has started, who has errors and who needs help.</p></div>
+		<ul>
+			<li>A table with the student, the group, the FlowStream and the template it comes from, its status (running or paused), the errors, the number of messages and the date of the last change.</li>
+			<li>Filter by group, by template and by text (student or FlowStream). The same filters apply to deliveries and activity.</li>
+			<li>The menu of each row lets you <strong>open</strong> the FlowStream of a student to help, <strong>observe it in real time</strong>, <strong>restore</strong> it from the template or <strong>remove</strong> it.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-observe">
+		<div class="tool-head"><h3>Observe in real time</h3><p>Follow the editor of a student without touching anything.</p></div>
+		<ul>
+			<li><strong>Observe in real time</strong>, in the menu of a row, opens the editor of that FlowStream in a new tab, <strong>read only</strong>: an orange bar says so and the controls to change things are not there.</li>
+			<li>It is not only the interface: the server refuses any message that would change the FlowStream (design, components, variables, pausing, restarting or removing).</li>
+			<li>You see the changes that the student applies, the messages and the errors as they happen. The list of connected editors shows that you are there, and it is recorded in the activity.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-exam">
+		<div class="tool-head"><h3>Exam mode</h3><p>Open and close the access of a group by dates, and nothing leaves the exam.</p></div>
+		<ul>
+			<li>In <strong>Exam mode</strong> choose a group and a start and an end. Before the start and after the end the students of the group have no access to their FlowStreams, not even with the editor open, and they cannot create new ones. You always have access, and the other groups are not affected.</li>
+			<li><strong>Block exporting, copying and duplicating</strong> (on by default): while the exam is open nobody can export a FlowStream, read its raw data or duplicate it. Students can still deliver.</li>
+			<li><strong>Deliver the work of every student when the exam ends</strong> (on by default): the application delivers by itself, once, and they appear in Deliveries as <em>Automatic</em>.</li>
+			<li>Students see a message when they enter: the exam is open (until when), has not started or has finished. After the end the group stays closed until you choose <strong>End the exam and restore the access</strong>.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-deliveries">
+		<div class="tool-head"><h3>Deliveries</h3><p>Students hand in their work with one click; you get a frozen copy.</p></div>
+		<ul>
+			<li>The student chooses <strong>Deliver</strong> in the menu of a FlowStream. The server keeps a copy (design, components and variables) with its date and number. The student can go on working and deliver again, and the copy that you have never changes. The last 20 deliveries of each FlowStream are kept.</li>
+			<li>In <strong>Deliveries</strong> you can <strong>open a delivery as a FlowStream</strong> (it becomes yours, without a group, so no student sees it), <strong>download</strong> it as JSON or <strong>remove</strong> it.</li>
+			<li><strong>Download the last deliveries</strong> gives one file with the last delivery of each FlowStream of the group and template that you have filtered, to grade them.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-palette">
+		<div class="tool-head"><h3>Components: palette and forbidden</h3><p>Decide which components each group can use. Students cannot add or edit them.</p></div>
+		<ul>
+			<li><strong>Palette.</strong> Add the components you want to a FlowStream of your own (for example one called <em>Library</em>). In <strong>Component palette</strong> choose a group and tick them. The FlowStreams of the group get them (they restart once), and so does every new FlowStream. The code is kept on the server, so nobody in the class can change it.</li>
+			<li><strong>Forbidden.</strong> In <strong>Forbidden components</strong> choose a group and tick the components to take away: they are removed from its FlowStreams, also from new copies and restored copies, and the nodes that used them stop working. Forbidden wins over the palette. Your templates are not touched.</li>
+			<li>The list marks with a warning the components whose code looks like it reaches files or the shell (<code>child_process</code>, <code>exec</code>, <code>fs</code>, <code>eval</code>…). It is a warning from reading the code, not a proof. Tick <strong>Also forbid the ones that look like they reach files or the shell</strong> to forbid them automatically, also the ones that arrive later.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-limits">
+		<div class="tool-head"><h3>Limits for each student</h3><p>Keep the server healthy in a big class.</p></div>
+		<ul>
+			<li><strong>FlowStreams for each student:</strong> how many a student can create or duplicate. The copies that you hand out are not counted, and you have no limit. At the limit the student gets a clear message.</li>
+			<li><strong>Days without work before pausing:</strong> the running FlowStreams that a student has not edited, resumed or restarted for those days are paused. The student can resume them, and the overview shows them as <em>Inactive</em>.</li>
+			<li>0 means without limit. The memory of each FlowStream is limited with <code>flowstream_memory</code>, and <code>max_streams</code> / <code>idle_days</code> give the starting values.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-activity">
+		<div class="tool-head"><h3>Activity log</h3><p>See what each student does and when.</p></div>
+		<ul>
+			<li>It records opening the editor, applying changes (one record a minute at most), creating, duplicating, removing, pausing, resuming, restarting, changing the variables, exporting and delivering; and what the application does by itself (pausing for inactivity, delivering when an exam ends). It also records when you open or observe the editor of a student.</li>
+			<li>Filter by group, text and period (24 hours, 7 days, 30 days or all the time) and <strong>download it as a table (CSV)</strong>.</li>
+			<li>It has personal data: it is kept in your server only for <strong>365 days</strong> by default (<code>FLOWEE_ACTIVITY_DAYS</code> changes it, 0 keeps it forever), the old months are deleted every day, and you can <strong>clear it</strong> whenever you want. Tell the students that it is recorded.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-protected">
+		<div class="tool-head"><h3>What students cannot do</h3><p>Nobody copies, cheats or breaks a component by accident.</p></div>
+		<ul>
+			<li>They cannot read, edit, add or remove the code of the components; the server refuses it, not only the interface.</li>
+			<li>They cannot import FlowStreams. They can <strong>duplicate their own</strong> (within their limit), and a FlowStream that a student exports or reads does not carry the code of the components.</li>
+			<li>They cannot read the global variables, the settings or the console, and each FlowStream runs in its own process, so a student cannot stop the work of the others.</li>
+		</ul>
+	</div>
 </section>
 
 <section class="section" id="docker" aria-labelledby="docker-title">

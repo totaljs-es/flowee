@@ -32,6 +32,7 @@
 		<nav class="top-links" aria-label="Principal">
 			<a href="#changes">Qué cambia</a>
 			<a href="#classroom">En el aula</a>
+			<a href="#tools">Herramientas</a>
 			<a href="#docker">Docker</a>
 			<a href="#openplatform">OpenPlatform</a>
 			<a class="lang" href="../" hreflang="en" lang="en">English</a>
@@ -61,7 +62,7 @@ docker run -d --name flowee -p <span class="t-n">8000</span>:<span class="t-n">8
   -v flowee-flowstream:/www/flowstream \
   -v flowee-private:/www/private \
   ghcr.io/totaljs-es/flowee</code></pre></div>
-		<div class="code"><pre><code><span class="t-c">// La profesora reparte una práctica a cada alumno</span>
+		<div class="code"><pre><code><span class="t-c">// El profesor reparte una práctica a cada alumno</span>
 Classroom → Asignar → <span class="t-s">"Una copia para cada alumno"</span>
 <span class="t-c">// Práctica 1 · Ana, Práctica 1 · Luis, Práctica 1 · Marta…</span></code></pre></div>
 	</div>
@@ -122,6 +123,87 @@ Classroom → Asignar → <span class="t-s">"Una copia para cada alumno"</span>
 		</div>
 	</div>
 	<p class="note top">La copia conserva el diseño, los componentes, las variables y la descripción de la plantilla, y empieza a funcionar sola. Los alumnos entran por OpenPlatform, abren Flow y trabajan en su copia; pueden crear más FlowStreams en sus grupos si tienen el permiso <code>create</code>.</p>
+</section>
+
+<section class="section" id="tools" aria-labelledby="tools-title">
+	<div class="section-head">
+		<h2 id="tools-title">Todo lo que puede hacer el profesor</h2>
+		<p>Todas las herramientas viven en el panel <strong>Classroom</strong>, que solo ven los profesores. Esto es lo que hace cada una y cómo funciona.</p>
+	</div>
+	<div class="tool" id="tool-templates">
+		<div class="tool-head"><h3>Plantillas de prácticas</h3><p>Crea un ejercicio una vez y repártelo a toda la clase.</p></div>
+		<ul>
+			<li>En el menú de cualquier FlowStream elige <strong>Usar como plantilla</strong>. Una plantilla nunca se muestra a los alumnos, ni siquiera a los de su grupo.</li>
+			<li>En <strong>Classroom</strong> pulsa <strong>Asignar</strong> y elige los grupos. Cada grupo recibe <strong>una copia compartida</strong> o, con <strong>Una copia para cada alumno del grupo</strong>, cada alumno recibe la suya, con el nombre <em>plantilla · alumno</em>, visible solo para esa persona y para ti. La segunda opción necesita la API de usuarios de OpenPlatform (<code>op_groups</code>).</li>
+			<li>La copia conserva el diseño, los componentes, las variables y la descripción, y empieza a funcionar sola. Si asignas de nuevo no se repite ninguna copia que ya exista, así que sirve cuando llegan alumnos nuevos.</li>
+			<li><strong>Restaurar desde la plantilla</strong> sustituye el trabajo de un alumno por la plantilla, para empezar de nuevo.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-overview">
+		<div class="tool-head"><h3>Resumen de la clase</h3><p>Mira de un vistazo quién ha empezado, quién tiene errores y quién necesita ayuda.</p></div>
+		<ul>
+			<li>Una tabla con el alumno, el grupo, el FlowStream y la plantilla de la que viene, su estado (en marcha o pausado), los errores, el número de mensajes y la fecha del último cambio.</li>
+			<li>Filtra por grupo, por plantilla y por texto (alumno o FlowStream). Los mismos filtros se aplican a las entregas y a la actividad.</li>
+			<li>El menú de cada fila te deja <strong>abrir</strong> el FlowStream de un alumno para ayudarle, <strong>observarlo en directo</strong>, <strong>restaurarlo</strong> desde la plantilla o <strong>quitarlo</strong>.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-observe">
+		<div class="tool-head"><h3>Observar en directo</h3><p>Sigue el editor de un alumno sin tocar nada.</p></div>
+		<ul>
+			<li><strong>Observar en directo</strong>, en el menú de una fila, abre el editor de ese FlowStream en una pestaña nueva, en <strong>solo lectura</strong>: una barra naranja lo indica y no están los controles para cambiar nada.</li>
+			<li>No es solo la interfaz: el servidor rechaza cualquier mensaje que cambie el FlowStream (diseño, componentes, variables, pausar, reiniciar o quitar).</li>
+			<li>Ves los cambios que el alumno aplica, los mensajes y los errores según ocurren. La lista de editores conectados muestra que estás ahí, y queda anotado en la actividad.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-exam">
+		<div class="tool-head"><h3>Modo examen</h3><p>Abre y cierra el acceso de un grupo por fechas, y que no salga nada del examen.</p></div>
+		<ul>
+			<li>En <strong>Modo examen</strong> elige un grupo, un inicio y un fin. Antes del inicio y después del fin los alumnos del grupo no tienen acceso a sus FlowStreams, ni siquiera con el editor abierto, y no pueden crear nuevos. Tú siempre tienes acceso y los demás grupos no se ven afectados.</li>
+			<li><strong>Bloquear exportar, copiar y duplicar</strong> (activado por defecto): mientras el examen está abierto nadie puede exportar un FlowStream, leer sus datos en bruto ni duplicarlo. Los alumnos sí pueden entregar.</li>
+			<li><strong>Entregar el trabajo de cada alumno cuando termine el examen</strong> (activado por defecto): la aplicación entrega sola, una vez, y aparecen en Entregas como <em>Automática</em>.</li>
+			<li>Los alumnos ven un mensaje al entrar: el examen está abierto (hasta cuándo), no ha empezado o ha terminado. Tras el fin el grupo sigue cerrado hasta que elijas <strong>Terminar el examen y restablecer el acceso</strong>.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-deliveries">
+		<div class="tool-head"><h3>Entregas</h3><p>Los alumnos entregan su trabajo con un clic; recibes una copia congelada.</p></div>
+		<ul>
+			<li>El alumno elige <strong>Entregar</strong> en el menú de un FlowStream. El servidor guarda una copia (diseño, componentes y variables) con su fecha y su número. El alumno puede seguir trabajando y volver a entregar, y la copia que tienes tú no cambia nunca. Se conservan las 20 últimas entregas de cada FlowStream.</li>
+			<li>En <strong>Entregas</strong> puedes <strong>abrir una entrega como FlowStream</strong> (pasa a ser tuyo, sin grupo, así que ningún alumno lo ve), <strong>descargarla</strong> en JSON o <strong>quitarla</strong>.</li>
+			<li><strong>Descargar las últimas entregas</strong> da un solo archivo con la última entrega de cada FlowStream del grupo y la plantilla que hayas filtrado, para corregirlas.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-palette">
+		<div class="tool-head"><h3>Componentes: paleta y prohibidos</h3><p>Decide qué componentes puede usar cada grupo. Los alumnos no pueden añadirlos ni editarlos.</p></div>
+		<ul>
+			<li><strong>Paleta.</strong> Añade los componentes que quieras a un FlowStream tuyo (por ejemplo uno llamado <em>Biblioteca</em>). En <strong>Paleta de componentes</strong> elige un grupo y márcalos. Los FlowStreams del grupo los reciben (se reinician una vez), y también cada FlowStream nuevo. El código se guarda en el servidor, así que nadie de la clase puede cambiarlo.</li>
+			<li><strong>Prohibidos.</strong> En <strong>Componentes prohibidos</strong> elige un grupo y marca los componentes que quieras quitar: se retiran de sus FlowStreams, también de las copias nuevas y restauradas, y los nodos que los usaban dejan de funcionar. Lo prohibido gana a la paleta. Tus plantillas no se tocan.</li>
+			<li>La lista marca con un aviso los componentes cuyo código parece acceder a archivos o al shell (<code>child_process</code>, <code>exec</code>, <code>fs</code>, <code>eval</code>…). Es un aviso por leer el código, no una prueba. Marca <strong>Prohibir también los que parecen acceder a archivos o al shell</strong> para prohibirlos automáticamente, también los que lleguen más tarde.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-limits">
+		<div class="tool-head"><h3>Límites para cada alumno</h3><p>Mantén sano el servidor en una clase grande.</p></div>
+		<ul>
+			<li><strong>FlowStreams para cada alumno:</strong> cuántos puede crear o duplicar. Las copias que repartes no cuentan y tú no tienes límite. Al llegar al límite el alumno recibe un mensaje claro.</li>
+			<li><strong>Días sin trabajar antes de pausar:</strong> los FlowStreams en marcha que un alumno no ha editado, reanudado ni reiniciado en esos días se pausan. El alumno puede reanudarlos y el resumen los muestra como <em>Inactivo</em>.</li>
+			<li>El 0 significa sin límite. La memoria de cada FlowStream se limita con <code>flowstream_memory</code>, y <code>max_streams</code> / <code>idle_days</code> dan los valores iniciales.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-activity">
+		<div class="tool-head"><h3>Registro de actividad</h3><p>Mira qué hace cada alumno y cuándo.</p></div>
+		<ul>
+			<li>Anota abrir el editor, aplicar cambios (una anotación por minuto como mucho), crear, duplicar, quitar, pausar, reanudar, reiniciar, cambiar las variables, exportar y entregar; y lo que hace la aplicación por sí sola (pausar por inactividad, entregar al terminar un examen). También anota cuándo abres u observas el editor de un alumno.</li>
+			<li>Filtra por grupo, texto y periodo (24 horas, 7 días, 30 días o todo el tiempo) y <strong>descárgalo como tabla (CSV)</strong>.</li>
+			<li>Tiene datos personales: se guarda en tu servidor solo <strong>365 días</strong> por defecto (<code>FLOWEE_ACTIVITY_DAYS</code> lo cambia, 0 lo guarda para siempre), los meses antiguos se borran cada día y puedes <strong>borrarlo</strong> cuando quieras. Dile a los alumnos que se registra.</li>
+		</ul>
+	</div>
+	<div class="tool" id="tool-protected">
+		<div class="tool-head"><h3>Lo que los alumnos no pueden hacer</h3><p>Nadie copia, hace trampas ni estropea un componente sin querer.</p></div>
+		<ul>
+			<li>No pueden leer, editar, añadir ni quitar el código de los componentes; lo rechaza el servidor, no solo la interfaz.</li>
+			<li>No pueden importar FlowStreams. Sí pueden <strong>duplicar los suyos</strong> (dentro de su límite), y un FlowStream que un alumno exporta o lee no lleva el código de los componentes.</li>
+			<li>No pueden leer las variables globales, los ajustes ni la consola, y cada FlowStream se ejecuta en su propio proceso, así que un alumno no puede parar el trabajo de los demás.</li>
+		</ul>
+	</div>
 </section>
 
 <section class="section" id="docker" aria-labelledby="docker-title">
