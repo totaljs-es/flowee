@@ -174,7 +174,7 @@ docker rm -f flowee
 		</div>
 		<div class="step">
 			<h3>Pega los tokens</h3>
-			<p>Abre Flow EE por primera vez, entra con la cuenta por defecto que enseña su página de acceso y pega los dos tokens en los ajustes. A partir de ahí los usuarios entran por OpenPlatform.</p>
+			<p>Dale los dos tokens a Flow EE como <code>FLOWEE_OP_REQTOKEN</code> y <code>FLOWEE_OP_RESTOKEN</code> o, la primera vez, entra con la cuenta por defecto que enseña su página de acceso y pégalos en los ajustes. A partir de ahí los usuarios entran por OpenPlatform.</p>
 		</div>
 	</div>
 	<p class="note top"><strong>Opcional:</strong> activa la API pública de usuarios en OpenPlatform y pon su dirección en <code>op_groups</code>; hace falta para <em>una copia para cada alumno</em>. Con <strong>OpenPlatform en la nube</strong> pon su dirección en <code>sso</code> en <code>config</code>: el acceso se verifica allí y los grupos y el profesor salen de su sesión. Nadie puede suplantar grupos.</p>
@@ -189,6 +189,7 @@ docker rm -f flowee
 		<tr><td><code>$proxytimeout</code></td><td>Tiempo máximo del proxy de los FlowStreams, en segundos.</td></tr>
 		</tbody>
 	</table></div>
+	<p class="note top"><strong>Sin archivos que editar.</strong> Cada ajuste también funciona como variable de entorno: <code>FLOWEE_</code> más la clave en mayúsculas (<code>FLOWEE_SSO</code>, <code>FLOWEE_OP_GROUPS</code>, <code>FLOWEE_FLOWSTREAM_MEMORY</code>…), y lo mismo para los dos tokens de la aplicación (<code>FLOWEE_OP_REQTOKEN</code>, <code>FLOWEE_OP_RESTOKEN</code>). El <code>docker-compose.yaml</code> ya los trae todos.</p>
 </section>
 
 <section class="section" aria-labelledby="included-title">

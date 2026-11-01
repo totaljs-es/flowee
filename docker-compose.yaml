@@ -3,6 +3,18 @@ services:
     build: .
     ports:
       - "8000:8000"
+    environment:
+      # Optional settings, the same keys as the file "config" in upper case with the prefix FLOWEE_.
+      # An empty value is ignored. They can also be put in a file ".env" next to this one.
+      FLOWEE_OP_REQTOKEN: ${FLOWEE_OP_REQTOKEN:-}
+      FLOWEE_OP_RESTOKEN: ${FLOWEE_OP_RESTOKEN:-}
+      FLOWEE_OP_GROUPS: ${FLOWEE_OP_GROUPS:-}
+      FLOWEE_SSO: ${FLOWEE_SSO:-}
+      FLOWEE_OPENPLATFORM: ${FLOWEE_OPENPLATFORM:-}
+      FLOWEE_FLOWSTREAM_WORKER: ${FLOWEE_FLOWSTREAM_WORKER:-}
+      FLOWEE_FLOWSTREAM_MEMORY: ${FLOWEE_FLOWSTREAM_MEMORY:-}
+      FLOWEE_PROXYTIMEOUT: ${FLOWEE_PROXYTIMEOUT:-}
+      FLOWEE_NAME: ${FLOWEE_NAME:-}
     volumes:
       - databases:/www/databases/
       - flowstream:/www/flowstream/

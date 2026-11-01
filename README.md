@@ -93,6 +93,24 @@ The file `config` has the usual settings of Flow plus these:
 | `flowstream_memory` | Maximum memory in MB of each FlowStream (`0` is automatic). Recommended in a class. |
 | `$proxytimeout` | Timeout of the proxy of the FlowStreams, in seconds. |
 
+### Configure from the environment
+
+Every setting can also be given as an environment variable: `FLOWEE_` plus the key in upper case. It wins over the file `config` and an empty value is ignored, so a container is configured without editing files (the `docker-compose.yaml` has them all, and reads a `.env` file):
+
+| Variable | Setting |
+|---|---|
+| `FLOWEE_OP_REQTOKEN`, `FLOWEE_OP_RESTOKEN` | the tokens of the application in OpenPlatform (instead of pasting them in the settings) |
+| `FLOWEE_OP_GROUPS` | `op_groups` |
+| `FLOWEE_SSO` | `sso` |
+| `FLOWEE_OPENPLATFORM` | the address of OpenPlatform for the sign-in redirect |
+| `FLOWEE_FLOWSTREAM_WORKER`, `FLOWEE_FLOWSTREAM_MEMORY` | `flowstream_worker`, `flowstream_memory` |
+| `FLOWEE_PROXYTIMEOUT` | `$proxytimeout` |
+| `FLOWEE_NAME` | `name` |
+
+```bash
+docker run -p 8000:8000 -e FLOWEE_SSO=https://my.openplatform.cloud -e FLOWEE_FLOWSTREAM_MEMORY=512 ghcr.io/totaljs-es/flowee
+```
+
 Every FlowStream is an independent process: a class with many students needs memory for them. As a reference, plan for the memory of the largest class that runs at the same time and limit it with `flowstream_memory`.
 
 ## OpenPlatform
@@ -101,7 +119,7 @@ Every FlowStream is an independent process: a class with many students needs mem
 2. Create a **group for each class** (or for each student if you want the work of each student to stay private even without owners).
 3. Give the application to the groups of the students and of the teachers. The users with `sa` are the teachers.
 4. The application offers two permissions: **Create Flows** (`create`) and **Remove Flows** (`remove`). Give `create` to the students.
-5. Open Flow EE for the first time, sign in with the default account that the login page shows and, in the settings, paste the **request token** and the **response token** of the application (the same ones that you gave to OpenPlatform). From then on the users enter through OpenPlatform.
+5. Open Flow EE for the first time, sign in with the default account that the login page shows and, in the settings, paste the **request token** and the **response token** of the application (the same ones that you gave to OpenPlatform), or give them as `FLOWEE_OP_REQTOKEN` and `FLOWEE_OP_RESTOKEN`. From then on the users enter through OpenPlatform.
 6. Optional: enable the public API of the users in OpenPlatform and put its address in `op_groups`.
 
 ## Data

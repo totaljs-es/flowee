@@ -117,13 +117,12 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 	Fs.cpSync(ROOT, dir, { recursive: true, filter: file => !skip.has(Path.basename(file)) });
 	Fs.mkdirSync(Path.join(dir, 'node_modules'));
 	Fs.symlinkSync(process.env.TOTAL5 || Path.dirname(require.resolve('total5/package.json', { paths: [ROOT] })), Path.join(dir, 'node_modules', 'total5'));
-	Fs.appendFileSync(Path.join(dir, 'config'), '\nop_groups : http://127.0.0.1:' + OP_PORT + '/users/?token=test\n');
 	Fs.mkdirSync(Path.join(dir, 'databases'));
-	Fs.writeFileSync(Path.join(dir, 'databases', 'memorize_preferences.json'), JSON.stringify({ op_reqtoken: 'REQ', op_restoken: 'RES', token: 'privatetoken', name: 'Flow EE', env: 'dev' }));
+	Fs.writeFileSync(Path.join(dir, 'databases', 'memorize_preferences.json'), JSON.stringify({ token: 'privatetoken', name: 'Flow EE', env: 'dev' }));
 
 	const op = fakeop();
 	// A group of processes: the application starts a process for each FlowStream and all of them must stop at the end
-	const app = spawn(process.execPath, ['index.js', String(APP_PORT), '--release'], { cwd: dir, stdio: 'ignore', detached: true });
+	const app = spawn(process.execPath, ['index.js', String(APP_PORT), '--release'], { cwd: dir, stdio: 'ignore', detached: true, env: Object.assign({}, process.env, { FLOWEE_OP_GROUPS: 'http://127.0.0.1:' + OP_PORT + '/users/?token=test', FLOWEE_OP_REQTOKEN: 'REQ', FLOWEE_OP_RESTOKEN: 'RES', FLOWEE_FLOWSTREAM_MEMORY: '512' }) });
 	const stop = () => { try { process.kill(-app.pid, 'SIGKILL'); } catch (e) {} };
 	process.on('exit', stop);
 	const results = [];
@@ -303,6 +302,7 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		const withpalette = ((await api('s1', 'Streams')).json || []).find(m => m.name === 'With the palette') || {};
 		r = await api('teacher', 'Streams|raw', { id: withpalette.id });
 		check('a new FlowStream of a student has the palette of his group', r.json && r.json.components && 'palettecom' in r.json.components, r.text);
+		check('the memory limit of the environment applies to the new FlowStreams', r.json && r.json.memory === 512, r.text);
 		r = await api('s2', 'Streams|save', { name: 'Other group', group: 'g2', icon: 'ti ti-microchip' });
 		await sleep(1500);
 		const othergroup = ((await api('s2', 'Streams')).json || []).find(m => m.name === 'Other group') || {};

@@ -166,6 +166,13 @@ ON('ready', function() {
 	if (!PREF.token)
 		PREF.token = GUID(30);
 
+	// The tokens of the application in OpenPlatform can come from the environment (FLOWEE_OP_REQTOKEN, FLOWEE_OP_RESTOKEN)
+	for (let key of ['op_reqtoken', 'op_restoken']) {
+		let value = FUNC.env(key);
+		if (value !== undefined && PREF[key] !== value)
+			PREF.set(key, value);
+	}
+
 	CONF.op_reqtoken = PREF.op_reqtoken;
 	CONF.op_restoken = PREF.op_restoken;
 

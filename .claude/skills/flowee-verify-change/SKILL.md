@@ -7,7 +7,7 @@ description: Use when you finish a change to Flow Education Edition (code, a plu
 
 Say that something works only after you have **run** it. In this order, from the cheapest:
 
-1. **The tests:** `npm test` (needs `npm install` once). It starts a fake OpenPlatform and a temporary copy of the app, and checks a teacher and several students. Report the numbers as they are (`74 of 74 checks passed`), and what failed.
+1. **The tests:** `npm test` (needs `npm install` once). It starts a fake OpenPlatform and a temporary copy of the app, and checks a teacher and several students. Report the numbers as they are (`75 of 75 checks passed`), and what failed.
 2. **Make the check able to fail.** Break the rule on purpose (remove the call to `FUNC.streamaccess` in the action that you touched) and see the check fail, then put it back. A check that you never saw fail may check nothing.
 4. **The image** (if you changed `Dockerfile`, `.dockerignore` or `package.json`): `docker build -t flowee .` and `docker run --rm -p 8000:8000 flowee`, then open `http://localhost:8000`. If Docker is not available, say that the image was not built.
 5. **The workflow** (`.github/workflows/docker-image.yml`) can only be fully verified on GitHub: it runs on a pull request (build only) and on a push to `master` (publish). Say so instead of calling it verified.

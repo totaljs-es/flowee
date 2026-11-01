@@ -1,3 +1,4 @@
+// Every setting can also be an environment variable: FLOWEE_ plus the key in upper case (FLOWEE_SSO, FLOWEE_OP_GROUPS...). It wins over this file.
 name                        : Total.js Flow Education Edition v2
 flowstream_worker           : fork
 $proxytimeout               : 120

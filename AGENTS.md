@@ -25,7 +25,7 @@ docker compose up                                      # docker-compose.yaml kee
 ```
 
 - **It needs OpenPlatform.** Register it as an application (it serves its own `openplatform.json`), create a group for each class, give the application to the groups, and give the permission `create` to the students (`remove` is optional).
-- **Configuration** is the `config` file. `op_groups` (optional) is the address of the users API of OpenPlatform and is needed for *one copy for each student*; `flowstream_worker : fork` makes each FlowStream its own process; `flowstream_memory` limits the memory of each one. The README has the whole table.
+- **Configuration** is the `config` file. `op_groups` (optional) is the address of the users API of OpenPlatform and is needed for *one copy for each student*; `flowstream_worker : fork` makes each FlowStream its own process; `flowstream_memory` limits the memory of each one. The README has the whole table. Every one of them can also be an environment variable, `FLOWEE_` plus the key in upper case (`definitions/env.js`), which wins over the file.
 - **Data:** FlowStreams are saved by Flow as usual. This edition adds `group`, `ownerid`, `ownername`, `template` and `templateid` to a FlowStream.
 - The documentation is `README.md`. For models: `llms.txt`.
 
@@ -46,7 +46,7 @@ docker compose up                                      # docker-compose.yaml kee
 
 ```bash
 npm install
-npm test                      # tests/education.js: 74 checks, starts a fake OpenPlatform and a temporary copy of the app
+npm test                      # tests/education.js: 75 checks, starts a fake OpenPlatform and a temporary copy of the app
 npm start                     # port 8000
 docker build -t flowee .      # the image
 ```
