@@ -77,6 +77,17 @@ The students cannot add or edit components, so you decide which ones each group 
 
 A component that you remove from a palette stays in the FlowStreams that already have it. The palettes are kept in the preferences of the application (`palettes`).
 
+### Exam mode
+
+In **Classroom**, *Exam mode* schedules an exam for a group of OpenPlatform with a start and an end:
+
+- **Before the start and after the end** the students of the group have no access to their FlowStreams (not even with the editor open), and they cannot create new ones in the group. The teachers always have access, and the other groups are not affected.
+- **While it is open**, if *Block exporting, copying and duplicating* is ticked (it is by default), a student cannot export, read the raw data or duplicate a FlowStream, so the work does not leave the exam. He can still deliver.
+- **When it ends**, if *Deliver the work of every student* is ticked (it is by default), the application delivers the work of every student by itself (they appear in *Deliveries* as *Automatic*). It is done once.
+- The students see a message when they enter: the exam is open (until when), has not started or has finished.
+
+After the end the group stays closed until the teacher chooses *End the exam and restore the access* in the menu of the exam. Editing the exam changes its dates and options.
+
 ### Deliveries
 
 A student hands in a FlowStream with **Deliver** in its menu. The server keeps a **frozen copy** (design, components and variables) with its date and number: the student can go on working and deliver again, and the copy that the teacher has never changes. The last 20 deliveries of each FlowStream are kept, as files in `databases/deliveries/` (the `databases` volume of the container).
@@ -165,7 +176,6 @@ The test starts a fake OpenPlatform and a temporary copy of the application, and
 
 We are still working on additional tasks in collaboration with UPM. Some ideas to talk about:
 
-- Exam mode: open and close the access by dates.
 - Read-only observer mode to follow the editor of a student live.
 
 ## Installation

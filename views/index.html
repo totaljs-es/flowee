@@ -690,6 +690,22 @@
 
 						if (!loaded) {
 							loaded = true;
+
+							// The student is told when an exam of his groups has not started, is open or has finished
+							!user.sa && exports.tapi('Streams|exam ERROR', function(exams) {
+								for (var exam of (exams || [])) {
+									var opgroup = opgroups.findItem('id', exam.group);
+									var name = opgroup ? opgroup.name : exam.group;
+									var end = new Date(exam.end).format('yyyy-MM-dd HH:mm');
+									var start = new Date(exam.start).format('yyyy-MM-dd HH:mm');
+									if (exam.state === 'open')
+										SETTER('notify/success', '@(Exam open)' + ' · ' + name + ' · @(until)' + ' ' + end + (exam.restrict ? ' · @(Exporting and duplicating are blocked)' : ''));
+									else if (exam.state === 'scheduled')
+										SETTER('message/warning', '@(The exam has not started yet)' + ': ' + name + ' · ' + start);
+									else
+										SETTER('message/warning', '@(The exam has finished)' + ': ' + name + ' · ' + end);
+								}
+							});
 							if (location.hash) {
 								let item = response.findItem('id', location.hash.substring(1));
 								if (item)

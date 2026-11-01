@@ -22,7 +22,7 @@ FUNC.deliveries = function() {
 };
 
 // Delivers a FlowStream. The callback receives the entry of the list.
-FUNC.deliver = function(item, user, callback) {
+FUNC.deliver = function(item, user, callback, auto) {
 
 	let items = CLONE(FUNC.deliveries());
 	let previous = items.filter(m => m.streamid === item.id);
@@ -40,6 +40,10 @@ FUNC.deliver = function(item, user, callback) {
 		number: previous.reduce((max, m) => Math.max(max, m.number), 0) + 1,
 		dtcreated: NOW
 	};
+
+	// A delivery that the exam made when it ended
+	if (auto)
+		entry.auto = true;
 
 	let data = CLONE(item);
 

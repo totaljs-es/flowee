@@ -62,7 +62,7 @@
 			exports.tapi('Classroom|assign ERROR @showloading', { id: model.id, groups: groups, students: !!model.students }, function(response) {
 				hide();
 				caller.refresh();
-				SETTER('notifybar/success', '@(Copies created):' + ' ' + response.created + (response.skipped ? (' (' + '@(already existed)' + ': ' + response.skipped + ')') : ''));
+				SETTER('notify/success', '@(Copies created):' + ' ' + response.created + (response.skipped ? (' (' + '@(already existed)' + ': ' + response.skipped + ')') : ''));
 			});
 		};
 

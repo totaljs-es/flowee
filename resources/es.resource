@@ -322,3 +322,28 @@ Tcyn1b1                  : Todavía no hay entregas.
 Tjqn091                  : Abrir como FlowStream
 T1ad33hd                 : La entrega es ahora un FlowStream tuyo, sin grupo.
 Tpe1kwh                  : ¿Seguro que quieres quitar esta entrega?
+Tuuovs4                  : Modo examen
+T1zk8uu                  : Los alumnos del grupo solo pueden trabajar entre estas fechas: antes del inicio y después del fin no tienen acceso. Los profesores siempre tienen acceso. Cuando termina, restableces el acceso normal.
+T1br2gy                  : Inicio
+T1hvf                    : Fin
+Tnv4ocg                  : Bloquear exportar, copiar y duplicar mientras el examen está abierto
+Tou9tci                  : Entregar el trabajo de cada alumno cuando termine el examen
+T1afsb07                 : Programar el examen
+Tuhfekt                  : Programado
+T1oyipoy                 : Terminado
+Ttu96pn                  : Terminar el examen y restablecer el acceso
+Tzboar3                  : El grupo vuelve al acceso normal. ¿Continuar?
+T18jpolz                 : Se ha restablecido el acceso.
+T1qjao3h                 : Se ha programado el examen.
+Tmuqc0o                  : Indica el inicio y el fin
+Tkr4lde                  : Entregado automáticamente al terminar el examen
+T1otkkjv                 : Automática
+Tuuq6iz                  : Examen abierto
+T1ucmla                  : hasta
+T18i63ot                 : Exportar y duplicar están bloqueados
+T1j4tplw                 : El examen aún no ha empezado
+Tduxx1m                  : El examen ha terminado
+T1q3azd4                 : No se permite durante el examen
+Tagsorb                  : Fecha no válida
+T1cgp6gp                 : El fin debe ser posterior al inicio y estar en el futuro
+T125ztmi                 : El acceso a este FlowStream está cerrado

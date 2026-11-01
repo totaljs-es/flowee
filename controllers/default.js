@@ -87,6 +87,11 @@ function socket($) {
 		else
 			client.close();
 	}, function(client, msg) {
+
+		// An exam can close the FlowStream while the editor is open
+		if (!FUNC.streamaccess(client.user, id))
+			return '@(The access to this FlowStream is closed)';
+
 		return COMPONENTCODE[msg.TYPE] && !(client.user && client.user.sa) ? '@(Only the teachers can work with the code of the components)' : true;
 	});
 }

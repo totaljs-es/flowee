@@ -24,6 +24,10 @@ FUNC.streamaccess = function(user, item) {
 	if (!item.group || !user.groups || !user.groups.includes(item.group))
 		return false;
 
+	// An exam closes the group before it starts and after it ends
+	if (FUNC.examblock(user, item.group))
+		return false;
+
 	// A FlowStream with an owner (created by a student or assigned to a student) is private to the owner
 	return !item.ownerid || item.ownerid === user.id;
 };

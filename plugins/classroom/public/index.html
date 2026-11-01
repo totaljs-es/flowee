@@ -13,6 +13,11 @@
 	.CLASS .cr-error { color: #D33; }
 	.CLASS .cr-limits { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin-bottom: 12px; }
 	.CLASS .cr-limits > ui-component { flex: 0 0 230px; max-width: 100%; }
+	.CLASS .cr-exam { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin-bottom: 12px; }
+	.CLASS .cr-exam > ui-component { flex: 0 0 260px; max-width: 100%; }
+	.CLASS .cr-field { flex: 0 0 210px; max-width: 100%; }
+	.CLASS .cr-date { width: 100%; height: 34px; padding: 0 10px; border: 1px solid #E0E0E0; border-radius: var(--radius); background: #FFF; color: #000; font: inherit; }
+	.ui-dark .CLASS .cr-date { background: #303030; color: #E0E0E0; border-color: #404040; }
 	.CLASS .cr-palette-group { max-width: 320px; margin-bottom: 12px; }
 	.CLASS .cr-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin-bottom: 14px; }
 	.CLASS .cr-palette-item { cursor: pointer; user-select: none; padding: 8px 10px; border: 1px solid rgba(0,0,0,0.12); border-radius: 6px; background: #FFF; }
@@ -67,6 +72,48 @@
 				<ui-component name="input" path="?.limits.idledays" config="type:number;min:0;max:999;align:1">@(Days without work before pausing)</ui-component>
 				<div><button class="exec cr-btn" data-exec="?/limitssave"><i class="ti ti-check-circle"></i>@(Save the limits)</button></div>
 			</div>
+
+			<div class="caption m" style="margin-top:24px"><label><i class="ti ti-alarm"></i>@(Exam mode)</label></div>
+			<div class="help m">@(The students of the group can work only between these dates: before the start and after the end they have no access. The teachers always have access. When it ends you restore the normal access.)</div>
+			<div class="cr-exam">
+				<ui-component name="input" path="?.egroup" config="dirsource:?.groups;dirempty:@(Choose a group);dirraw:1">@(Group)</ui-component>
+				<div class="cr-field"><div class="ui-input-label">@(Start):</div><input type="datetime-local" id="crexamstart" class="cr-date"></div>
+				<div class="cr-field"><div class="ui-input-label">@(End):</div><input type="datetime-local" id="crexamend" class="cr-date"></div>
+			</div>
+			<div class="m">
+				<ui-component name="input" path="?.erestrict" config="type:checkbox" class="b">@(Block exporting, copying and duplicating while the exam is open)</ui-component>
+				<ui-component name="input" path="?.eautodeliver" config="type:checkbox" class="b">@(Deliver the work of every student when the exam ends)</ui-component>
+			</div>
+			<div class="m"><button class="exec cr-btn" data-exec="?/examsave"><i class="ti ti-check-circle"></i>@(Schedule the exam)</button></div>
+
+			<ui-bind path="?.exams" config="template" class="block">
+				<script type="text/html">
+					{{ if value && value.length }}
+					<table class="cr-table m">
+						<thead>
+							<tr>
+								<th>@(Group)</th>
+								<th>@(Start)</th>
+								<th>@(End)</th>
+								<th>@(Status)</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{{ foreach m in value }}
+							<tr>
+								<td><b>{{ m.groupname }}</b></td>
+								<td>{{ m.start | format('yyyy-MM-dd HH:mm') }}</td>
+								<td>{{ m.end | format('yyyy-MM-dd HH:mm') }}</td>
+								<td><span class="cr-badge">{{ if m.state === 'open' }}@(Open){{ else }}{{ if m.state === 'scheduled' }}@(Scheduled){{ else }}@(Finished){{ fi }}{{ fi }}</span></td>
+								<td style="text-align:right"><span class="exec" data-exec="?/examoptions" data-id="{{ m.group }}"><i class="ti ti-ellipsis-v"></i></span></td>
+							</tr>
+							{{ end }}
+						</tbody>
+					</table>
+					{{ fi }}
+				</script>
+			</ui-bind>
 
 			<div class="caption m" style="margin-top:24px"><label><i class="ti ti-puzzle"></i>@(Component palette)</label></div>
 			<div class="help m">@(The students cannot add or edit components. Choose the components that the FlowStreams of a group will have. Prepare them in a FlowStream of your own, adding them from the store.)</div>
@@ -155,7 +202,7 @@
 								<td><b>{{ m.ownername }}</b></td>
 								<td>{{ m.groupname }}</td>
 								<td>{{ m.name }}{{ if m.templatename }}<div class="help"><i class="ti ti-copy"></i> {{ m.templatename }}</div>{{ fi }}</td>
-								<td><span class="cr-badge">#{{ m.number }}</span>{{ if m.latest }} <span class="help">@(Last)</span>{{ fi }}</td>
+								<td><span class="cr-badge">#{{ m.number }}</span>{{ if m.latest }} <span class="help">@(Last)</span>{{ fi }}{{ if m.auto }} <span class="cr-badge" title="@(Delivered by itself when the exam ended)">@(Automatic)</span>{{ fi }}</td>
 								<td>{{ m.dtcreated | format('yyyy-MM-dd HH:mm') }}</td>
 								<td style="text-align:right"><span class="exec" data-exec="?/deliveryoptions" data-id="{{ m.id }}"><i class="ti ti-ellipsis-v"></i></span></td>
 							</tr>
@@ -246,6 +293,21 @@
 					exports.set('all', rows);
 					exports.set('streams', streams);
 					exports.set('info', info);
+
+					var examgroups = {};
+					for (var g of groups)
+						examgroups[g.id] = g.name;
+
+					for (var ex of (info.exams || []))
+						ex.groupname = examgroups[ex.group] || ex.group;
+
+					exports.set('exams', info.exams || []);
+
+					if (exports.model.erestrict == null)
+						exports.set('erestrict', true);
+
+					if (exports.model.eautodeliver == null)
+						exports.set('eautodeliver', true);
 					exports.set('limits', { maxstreams: (info.limits && info.limits.maxstreams) || 0, idledays: (info.limits && info.limits.idledays) || 0 });
 					exports.set('groups', groups);
 					exports.set('templates', templates);
@@ -327,13 +389,78 @@
 			}
 		};
 
+		var tolocal = function(iso) {
+			// The value of an input datetime-local (local time) for a date
+			var d = new Date(iso);
+			var pad = n => (n < 10 ? '0' : '') + n;
+			return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+		};
+
+		exports.examsave = function() {
+
+			var model = exports.model;
+			var start = $('#crexamstart').val();
+			var end = $('#crexamend').val();
+
+			if (!model.egroup) {
+				SETTER('message/warning', '@(Choose a group)');
+				return;
+			}
+
+			if (!start || !end) {
+				SETTER('message/warning', '@(Set the start and the end)');
+				return;
+			}
+
+			var data = { group: model.egroup, start: new Date(start).toISOString(), end: new Date(end).toISOString(), restrict: !!model.erestrict, autodeliver: !!model.eautodeliver };
+
+			exports.tapi('Classroom|exam_save ERROR @showloading', data, function() {
+				exports.refresh();
+				SETTER('notify/success', '@(The exam has been scheduled.)');
+			});
+		};
+
+		exports.examoptions = function(el) {
+
+			var model = exports.model;
+			var group = ATTRD(el);
+			var item = model.exams.findItem('group', group);
+			var opt = {};
+
+			opt.element = el;
+			opt.align = 'right';
+			opt.items = [];
+			opt.items.push({ id: 'edit', name: '@(Edit)', icon: 'ti ti-pencil' });
+			opt.items.push('-');
+			opt.items.push({ id: 'remove', name: '@(End the exam and restore the access)', icon: 'ti ti-remove red' });
+
+			opt.callback = function(selected) {
+				if (selected.id === 'edit') {
+					exports.set('egroup', item.group);
+					exports.set('erestrict', !!item.restrict);
+					exports.set('eautodeliver', !!item.autodeliver);
+					$('#crexamstart').val(tolocal(item.start));
+					$('#crexamend').val(tolocal(item.end));
+				} else {
+					SETTER('approve/show', '@(The group goes back to normal access. Continue?)', '"ti ti-remove" @(Restore)', function() {
+						exports.tapi('Classroom|exam_remove ERROR @showloading', { group: group }, function() {
+							exports.refresh();
+							SETTER('notify/success', '@(The access has been restored.)');
+						});
+					});
+				}
+			};
+
+			SETTER('menu/show', opt);
+		};
+
 		exports.limitssave = function() {
 
 			var limits = exports.model.limits || {};
 
 			exports.tapi('Classroom|limits_save ERROR @showloading', { maxstreams: +limits.maxstreams || 0, idledays: +limits.idledays || 0 }, function(response) {
 				exports.refresh();
-				SETTER('notifybar/success', '@(The limits have been saved.)' + (response.paused ? (' ' + '@(FlowStreams paused):' + ' ' + response.paused) : ''));
+				SETTER('notify/success', '@(The limits have been saved.)' + (response.paused ? (' ' + '@(FlowStreams paused):' + ' ' + response.paused) : ''));
 			});
 		};
 
@@ -349,7 +476,7 @@
 
 			exports.tapi('Classroom|palette_save ERROR @showloading', { group: model.pgroup, items: items }, function() {
 				exports.refresh();
-				SETTER('notifybar/success', '@(The palette has been saved.)');
+				SETTER('notify/success', '@(The palette has been saved.)');
 			});
 		};
 
@@ -401,7 +528,7 @@
 						exports.tapi('Classroom|delivery_open ERROR @showloading', { id: id }, function(response) {
 							SETTER('loading/hide', 300);
 							exports.refresh();
-							SETTER('notifybar/success', '@(The delivery is now a FlowStream of yours, without a group.)');
+							SETTER('notify/success', '@(The delivery is now a FlowStream of yours, without a group.)');
 						});
 						break;
 					case 'download':
@@ -448,7 +575,7 @@
 						SETTER('approve/show', '@(The work of the student in <b>"{name}"</b> will be replaced by the template. Continue?)'.args(item), '"ti ti-undo" @(Restore)', function() {
 							exports.tapi('Classroom|reset ERROR @showloading', { id: id }, function() {
 								exports.refresh();
-								SETTER('notifybar/success', '@(The FlowStream has been restored from the template.)');
+								SETTER('notify/success', '@(The FlowStream has been restored from the template.)');
 							});
 						});
 						break;

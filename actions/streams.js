@@ -69,6 +69,11 @@ NEWACTION('Streams|save', {
 				$.invalid('@(You have reached the limit of FlowStreams)' + ': ' + FUNC.limits().maxstreams);
 				return;
 			}
+			let closed = FUNC.examblock($.user, model.group);
+			if (closed) {
+				$.invalid(closed);
+				return;
+			}
 		} else if (!FUNC.streamaccess($.user, model.id)) {
 			$.invalid(Flow.db[model.id] ? 401 : 404);
 			return;
@@ -217,8 +222,12 @@ NEWACTION('Streams|raw', {
 	user: true,
 	action: function($, model) {
 		let item = Flow.db[model.id];
-		if (item && FUNC.streamaccess($.user, item))
-			$.callback(FUNC.streamdata($.user, item));
+		if (item && FUNC.streamaccess($.user, item)) {
+			if (FUNC.examrestricted($.user, item.group))
+				$.invalid('@(Not allowed during the exam)');
+			else
+				$.callback(FUNC.streamdata($.user, item));
+		}
 		else
 			$.invalid(404);
 	}
@@ -322,8 +331,12 @@ NEWACTION('Streams|export', {
 	action: function($, model) {
 		let id = model.id;
 		let item = Flow.db[id];
-		if (item && FUNC.streamaccess($.user, item))
-			$.success(JSON.stringify(FUNC.streamdata($.user, item), skip, '\t'));
+		if (item && FUNC.streamaccess($.user, item)) {
+			if (FUNC.examrestricted($.user, item.group))
+				$.invalid('@(Not allowed during the exam)');
+			else
+				$.success(JSON.stringify(FUNC.streamdata($.user, item), skip, '\t'));
+		}
 		else
 			$.invalid(404);
 	}
@@ -395,6 +408,25 @@ NEWACTION('Streams|import', {
 	}
 });
 
+// The exams of the groups of the user: the interface tells the student if the exam is open, has not started or has finished
+NEWACTION('Streams|exam', {
+	name: 'Exams of the groups of the user',
+	route: '+API ?',
+	user: true,
+	action: function($) {
+
+		let output = [];
+		let exams = FUNC.exams();
+
+		for (let group of ($.user.groups || [])) {
+			if (exams[group])
+				output.push({ group: group, state: FUNC.examstate(group), start: exams[group].start, end: exams[group].end, restrict: !!exams[group].restrict });
+		}
+
+		$.callback(output);
+	}
+});
+
 NEWACTION('Streams|deliver', {
 	name: 'Deliver a FlowStream',
 	route: '+API ?',
@@ -435,6 +467,11 @@ NEWACTION('Streams|clone', {
 
 		if (UNAUTHORIZED($, 'create'))
 			return;
+
+		if (FUNC.examrestricted($.user, item.group)) {
+			$.invalid('@(Not allowed during the exam)');
+			return;
+		}
 
 		if (!FUNC.streamlimit($.user)) {
 			$.invalid('@(You have reached the limit of FlowStreams)' + ': ' + FUNC.limits().maxstreams);

@@ -17,6 +17,10 @@ NEWACTION('Classroom', {
 	route: '+API ?',
 	sa: true,
 	action: function($) {
+
+		// An exam that has ended delivers the work of the students (once)
+		FUNC.examtick();
+
 		FUNC.opusers(function(err, op) {
 
 			let groups = op.groups.length ? op.groups : ($.user.platform && $.user.platform.groups instanceof Array ? $.user.platform.groups : []);
@@ -27,7 +31,7 @@ NEWACTION('Classroom', {
 					students.push({ id: m.id, name: m.name, groups: m.groups || [] });
 			}
 
-			$.callback({ groups: groups, students: students, hasusers: !err && op.users.length > 0, limits: FUNC.limits() });
+			$.callback({ groups: groups, students: students, hasusers: !err && op.users.length > 0, limits: FUNC.limits(), exams: Object.keys(FUNC.exams()).map(group => Object.assign({ group: group, state: FUNC.examstate(group) }, FUNC.exams()[group])) });
 		});
 	}
 });
@@ -369,6 +373,56 @@ NEWACTION('Classroom|delivery_remove', {
 		if (FUNC.deliveryremove(model.id))
 			$.success();
 		else
+			$.invalid(404);
+	}
+});
+
+
+// Exam mode: the students of a group can work only between two dates
+NEWACTION('Classroom|exam_save', {
+	name: 'Schedule the exam of a group',
+	route: '+API ?',
+	input: '*group:String, *start:String, *end:String, restrict:Boolean, autodeliver:Boolean',
+	sa: true,
+	audit: true,
+	action: function($, model) {
+
+		let start = Date.parse(model.start);
+		let end = Date.parse(model.end);
+
+		if (isNaN(start) || isNaN(end)) {
+			$.invalid('@(Invalid date)');
+			return;
+		}
+
+		if (end <= start || end <= Date.now()) {
+			$.invalid('@(The end must be after the start and in the future)');
+			return;
+		}
+
+		let exams = CLONE(FUNC.exams());
+		exams[model.group] = { start: new Date(start).toISOString(), end: new Date(end).toISOString(), restrict: !!model.restrict, autodeliver: !!model.autodeliver };
+		PREF.set('exams', exams);
+		$.success();
+	}
+});
+
+// Ends the exam: the group goes back to normal
+NEWACTION('Classroom|exam_remove', {
+	name: 'End the exam of a group',
+	route: '+API ?',
+	input: '*group:String',
+	sa: true,
+	audit: true,
+	action: function($, model) {
+
+		let exams = CLONE(FUNC.exams());
+
+		if (exams[model.group]) {
+			delete exams[model.group];
+			PREF.set('exams', exams);
+			$.success();
+		} else
 			$.invalid(404);
 	}
 });

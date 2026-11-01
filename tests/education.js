@@ -404,6 +404,79 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		r = await api('teacher', 'Classroom|delivery_download', { id: first.id });
 		check('a removed delivery cannot be downloaded', denied(r), r.text);
 
+		// Exam mode
+		const iso = ms => new Date(Date.now() + ms).toISOString();
+		const own2 = async () => ((await api('s2', 'Streams')).json || []).filter(m => m.ownerid === 's2');
+		const before2 = (await own2()).length;
+		check('a student has FlowStreams before the exam', before2 > 0, String(before2));
+		r = await api('s2', 'Classroom|exam_save', { group: 'g2', start: iso(1000), end: iso(60000), restrict: true, autodeliver: true });
+		check('a student cannot schedule an exam', denied(r), r.text);
+		r = await api('teacher', 'Classroom|exam_save', { group: 'g2', start: iso(60000), end: iso(30000), restrict: true, autodeliver: true });
+		check('an exam cannot end before it starts', denied(r), r.text);
+		r = await api('teacher', 'Classroom|exam_save', { group: 'g2', start: iso(3600000), end: iso(7200000), restrict: true, autodeliver: true });
+		check('the teacher schedules an exam for a group', r.json && r.json.success, r.text);
+		r = await api('s2', 'Streams|exam');
+		check('the student sees that the exam has not started', r.json && r.json[0] && r.json[0].group === 'g2' && r.json[0].state === 'scheduled', r.text);
+		check('before the start the students of the group have no access', (await own2()).length === 0, 'visible');
+		r = await api('s2', 'Streams|save', { name: 'Before the exam', group: 'g2', icon: 'ti ti-microchip' });
+		check('before the start a student cannot create a FlowStream in the group', denied(r) && /exam/i.test(r.text), r.text);
+		r = await api('s3', 'Streams');
+		check('the exam does not affect other groups (a student of two groups still sees the other one)', (r.json || []).some(m => m.group === 'g1'), r.text);
+		r = await api('s1', 'Streams');
+		check('the students of other groups are not affected', (r.json || []).length > 0, r.text);
+		r = await api('teacher', 'Streams');
+		check('the teacher always has access', (r.json || []).some(m => m.group === 'g2'), r.text);
+		ws = await socket('s2', two.id);
+		check('before the start a student cannot open the editor', !ws.open, JSON.stringify(ws));
+
+		r = await api('teacher', 'Classroom|exam_save', { group: 'g2', start: iso(-5000), end: iso(3600000), restrict: true, autodeliver: true });
+		r = await api('s2', 'Streams|exam');
+		check('the exam is open', r.json && r.json[0] && r.json[0].state === 'open' && r.json[0].restrict, r.text);
+		check('while it is open the students work as usual', (await own2()).length === before2, 'count');
+		const exam2 = (await own2())[0];
+		r = await api('s2', 'Streams|export', { id: exam2.id });
+		check('during the exam a student cannot export a FlowStream', denied(r) && /exam/i.test(r.text), r.text);
+		r = await api('s2', 'Streams|raw', { id: exam2.id });
+		check('during the exam a student cannot read the raw data', denied(r), r.text);
+		r = await api('s2', 'Streams|clone', { id: exam2.id });
+		check('during the exam a student cannot duplicate a FlowStream', denied(r), r.text);
+		r = await api('teacher', 'Streams|export', { id: exam2.id });
+		check('the teacher can still export', r.json && r.json.success, r.text);
+		r = await api('s2', 'Streams|deliver', { id: exam2.id });
+		check('during the exam a student can deliver', r.json && r.json.success, r.text);
+		r = await api('teacher', 'Classroom');
+		check('the panel returns the exams with their state', r.json && r.json.exams && r.json.exams.find(m => m.group === 'g2').state === 'open', r.text);
+
+		// It ends: the work is delivered by itself and the access closes
+		const delivered2 = async () => ((await api('teacher', 'Classroom|deliveries')).json || []).filter(m => m.group === 'g2' && m.auto);
+		check('nothing is delivered by itself while the exam is open', (await delivered2()).length === 0, 'auto');
+		r = await api('teacher', 'Classroom|exam_save', { group: 'g2', start: iso(-10000), end: iso(2000), restrict: true, autodeliver: true });
+		await sleep(3500);
+		await api('teacher', 'Classroom');
+		await sleep(2500);
+		const auto = await delivered2();
+		check('when the exam ends the work of every student is delivered by itself', auto.length >= before2 && auto.every(m => m.ownerid === 's2'), JSON.stringify(auto.map(m => m.name)));
+		await api('teacher', 'Classroom');
+		await sleep(1500);
+		check('the exam is processed only once', (await delivered2()).length === auto.length, 'repeated');
+		r = await api('s2', 'Streams|exam');
+		check('the student sees that the exam has finished', r.json && r.json[0] && r.json[0].state === 'closed', r.text);
+		check('after the end the students of the group have no access', (await own2()).length === 0, 'visible');
+		r = await api('s2', 'Streams|read', { id: exam2.id });
+		check('after the end a student cannot read his FlowStream', denied(r), r.text);
+		ws = await socket('s2', exam2.id);
+		check('after the end a student cannot open the editor', !ws.open, JSON.stringify(ws));
+		ans = await editorcall('teacher', exam2.id, { TYPE: 'save', data: {} });
+		check('the teacher can still use the editor', ans, JSON.stringify(ans));
+
+		r = await api('teacher', 'Classroom|exam_remove', { group: 'g2' });
+		check('the teacher ends the exam', r.json && r.json.success, r.text);
+		check('the group goes back to normal', (await own2()).length === before2, 'count');
+		r = await api('s2', 'Streams|exam');
+		check('there is no exam any more', r.json && r.json.length === 0, r.text);
+		r = await api('s2', 'Streams|export', { id: exam2.id });
+		check('a student can export again', r.json && r.json.success, r.text);
+
 	} catch (e) {
 		check('the tests finished without an error', false, e && e.stack);
 	}
