@@ -41,7 +41,7 @@ function login($) {
 		if ($.banned || $.query.authorized)
 			$.redirect(CONF.sso);
 		else
-			$.redirect(CONF.sso + '/?url=' + $.hostname());
+			$.redirect(CONF.sso + '/?url=' + (CONF.op_url || $.hostname()));
 	} else
 		$.view('login');
 }

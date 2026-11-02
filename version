@@ -8,6 +8,7 @@ Version: 2.1
 - sign in with OpenPlatform cloud (`sso` in the config): the groups and the teacher come from OpenPlatform, nobody can impersonate groups
 - the students cannot read, edit or remove the code of the components, and they cannot import FlowStreams (they can duplicate their own); a FlowStream that a student exports or reads does not carry the code of the components
 - every setting of the config can be given as an environment variable (FLOWEE_ plus the key in upper case), also the tokens of OpenPlatform; the docker-compose.yaml lists them
+- FLOWEE_OP_URL (op_url): the public https address of Flow EE behind a proxy, so OpenPlatform over https can open it (no mixed content); the sign-in with the cloud uses it too
 - when there are no groups to choose, Flow EE says why (no op_groups, OpenPlatform cannot be reached, the token is refused, the answer is not the users API, the user has no group or is not a teacher), in the screen, in the log and in the Classroom panel
 - activity log (Classroom): what each student does and when, with filters, download as CSV, retention in days (FLOWEE_ACTIVITY_DAYS) and a button to clear it
 - forbidden components for each group (Classroom): they are taken out of the FlowStreams of the group; the ones that look like they reach files or the shell are marked and can be forbidden automatically

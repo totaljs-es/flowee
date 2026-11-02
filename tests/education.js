@@ -127,7 +127,7 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 
 	const op = fakeop();
 	// A group of processes: the application starts a process for each FlowStream and all of them must stop at the end
-	const app = spawn(process.execPath, ['index.js', String(APP_PORT), '--release'], { cwd: dir, stdio: 'ignore', detached: true, env: Object.assign({}, process.env, { FLOWEE_OP_GROUPS: 'http://127.0.0.1:' + OP_PORT + '/users/?token=test', FLOWEE_OP_REQTOKEN: 'REQ', FLOWEE_OP_RESTOKEN: 'RES', FLOWEE_FLOWSTREAM_MEMORY: '512' }) });
+	const app = spawn(process.execPath, ['index.js', String(APP_PORT), '--release'], { cwd: dir, stdio: 'ignore', detached: true, env: Object.assign({}, process.env, { FLOWEE_OP_GROUPS: 'http://127.0.0.1:' + OP_PORT + '/users/?token=test', FLOWEE_OP_REQTOKEN: 'REQ', FLOWEE_OP_RESTOKEN: 'RES', FLOWEE_FLOWSTREAM_MEMORY: '512', FLOWEE_OP_URL: 'https://flowee.example.test' }) });
 	const stop = () => { try { process.kill(-app.pid, 'SIGKILL'); } catch (e) {} };
 	process.on('exit', stop);
 	const results = [];
@@ -140,6 +140,9 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 	try {
 
 		await sleep(5000);
+
+		const meta = await fetch(BASE + '/openplatform.json').then(m => m.json());
+		check('the public address of the application can be set (behind a proxy with https)', meta.url === 'https://flowee.example.test', JSON.stringify(meta.url));
 
 		let r = await api('s1', 'Streams');
 		check('a student starts with an empty list', r.status === 200 && Array.isArray(r.json) && !r.json.length, r.text);

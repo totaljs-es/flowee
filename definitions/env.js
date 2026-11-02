@@ -2,7 +2,7 @@
 // The name is FLOWEE_ plus the key of the config in upper case: FLOWEE_OP_GROUPS, FLOWEE_SSO, FLOWEE_FLOWSTREAM_MEMORY...
 // An empty variable is ignored. The environment wins over the file "config".
 
-const TEXT = ['name', 'op_groups', 'sso', 'openplatform'];
+const TEXT = ['name', 'op_groups', 'op_url', 'sso', 'openplatform'];
 const NUMBER = { flowstream_memory: 'flowstream_memory', proxytimeout: '$proxytimeout' };
 
 // The value of FLOWEE_<KEY> or undefined

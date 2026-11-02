@@ -145,6 +145,14 @@ The file `config` has the usual settings of Flow plus these:
 | `flowstream_memory` | Maximum memory in MB of each FlowStream (`0` is automatic). Recommended in a class. |
 | `$proxytimeout` | Timeout of the proxy of the FlowStreams, in seconds. |
 
+### If Flow EE does not open inside OpenPlatform
+
+When OpenPlatform is served over `https://` and Flow EE is registered with an `http://` address, the browser blocks it (*Mixed Content: requested an insecure frame*) and the application stays blank. Flow EE needs an address with `https://` and a valid certificate (usually the reverse proxy in front of it has it), and OpenPlatform must have that address:
+
+1. Serve Flow EE over `https://` (the proxy with the certificate of its own host name).
+2. Set `FLOWEE_OP_URL` (or `op_url` in the config) to that address, for example `https://flowee.my.university`. Behind a proxy that ends the TLS, Flow EE only sees `http://` and it would publish that address in its `openplatform.json`; this setting fixes it.
+3. In OpenPlatform, change the address of the application (Setup, Apps) to the same `https://` address.
+
 ### If the groups do not appear
 
 The groups of a student come with his session of OpenPlatform. The teacher (the user with `sa`) gets them from the users API of OpenPlatform when `op_groups` (or `FLOWEE_OP_GROUPS`) is set, and from the session when it is not. When there is no group to choose, Flow EE says why when the teacher or the student enters, and the log of the application and the panel of Classroom say what happened with `op_groups`:
@@ -163,6 +171,7 @@ Every setting can also be given as an environment variable: `FLOWEE_` plus the k
 |---|---|
 | `FLOWEE_OP_REQTOKEN`, `FLOWEE_OP_RESTOKEN` | the tokens of the application in OpenPlatform (instead of pasting them in the settings) |
 | `FLOWEE_OP_GROUPS` | `op_groups` |
+| `FLOWEE_OP_URL` | the public address of Flow EE, with `https://` when it is behind a proxy with a certificate (see below) |
 | `FLOWEE_SSO` | `sso` |
 | `FLOWEE_OPENPLATFORM` | the address of OpenPlatform for the sign-in redirect |
 | `FLOWEE_FLOWSTREAM_WORKER`, `FLOWEE_FLOWSTREAM_MEMORY` | `flowstream_worker`, `flowstream_memory` |
