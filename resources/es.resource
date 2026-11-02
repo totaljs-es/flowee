@@ -389,3 +389,9 @@ T7i9nmj                  : Últimas 24 horas
 Tu9iczu                  : Últimos 7 días
 Txn8rm8                  : Últimos 30 días
 T16qdv4r                 : Todo el tiempo
+T6g200b                  : No perteneces a ningún grupo de OpenPlatform, o el grupo no tiene esta aplicación. Pídeselo al administrador. Los profesores necesitan la opción de superadministrador, sa, en OpenPlatform.
+T1nhysd8                 : Flow EE no recibe los grupos de OpenPlatform. Indica FLOWEE_OP_GROUPS, o op_groups en el config, con la dirección de la API de usuarios de OpenPlatform.
+T1w3dbj8                 : El servidor de Flow EE no llega a la API de usuarios de OpenPlatform. Revisa la dirección de FLOWEE_OP_GROUPS, la red del contenedor y el certificado.
+Tgtuer1                  : OpenPlatform rechaza el token de FLOWEE_OP_GROUPS. Comprueba que la API pública de usuarios esté activada en OpenPlatform y que el token sea el mismo.
+T95s2zd                  : La respuesta de FLOWEE_OP_GROUPS no parece la API de usuarios de OpenPlatform. Revisa la dirección.
+T17dv489                 : OpenPlatform todavía no tiene grupos. Créalos en OpenPlatform, en los ajustes.

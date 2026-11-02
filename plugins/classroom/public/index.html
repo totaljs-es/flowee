@@ -20,6 +20,8 @@
 	.ui-dark .CLASS .cr-date { background: #303030; color: #E0E0E0; border-color: #404040; }
 	.CLASS .cr-activity-bar { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin-bottom: 12px; }
 	.CLASS .cr-activity-bar > ui-component { flex: 0 0 220px; max-width: 100%; }
+	.CLASS .cr-warning { margin-bottom: 18px; padding: 10px 14px; border: 1px solid #F0C36D; background: #FFF6E0; color: #6B4A00; border-radius: var(--radius); font-size: 13px; }
+	.ui-dark .CLASS .cr-warning { background: #3A3015; border-color: #6B5320; color: #F2D79A; }
 	.CLASS .cr-risk { background: #FFF1D6; color: #9A5B00; }
 	.CLASS .cr-palette-group { max-width: 320px; margin-bottom: 12px; }
 	.CLASS .cr-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin-bottom: 14px; }
@@ -45,6 +47,12 @@
 <ui-plugin config="aclass:1">
 	<ui-component name="viewbox" config="parent:auto;margin:0" class="invisible">
 		<div class="padding">
+
+			<ui-bind path="?.ophint" config="template" class="block">
+				<script type="text/html">
+					{{ if value }}<div class="cr-warning"><i class="ti ti-alert-triangle"></i> {{ value }}</div>{{ fi }}
+				</script>
+			</ui-bind>
 
 			<div class="caption m"><label><i class="ti ti-copy"></i>@(Practice templates)</label></div>
 			<ui-bind path="?.templates" config="template" class="block">
@@ -366,6 +374,21 @@
 					exports.set('all', rows);
 					exports.set('streams', streams);
 					exports.set('info', info);
+
+					// Why there may be no groups: what happened the last time that OpenPlatform was asked
+					var op = info.opstatus || {};
+					var ophint = '';
+
+					if (op.state === 'unreachable')
+						ophint = '@(The server of Flow EE cannot reach the users API of OpenPlatform. Check the address of FLOWEE_OP_GROUPS, the network of the container and the certificate.)' + (op.detail ? ' (' + op.detail + ')' : '');
+					else if (op.state === 'denied')
+						ophint = '@(OpenPlatform refuses the token of FLOWEE_OP_GROUPS. Check that the public API of the users is enabled in OpenPlatform and that the token is the same.)';
+					else if (op.state === 'invalid')
+						ophint = '@(The answer of FLOWEE_OP_GROUPS does not look like the users API of OpenPlatform. Check the address.)';
+					else if (op.state === 'unset' && !groups.length)
+						ophint = '@(Flow EE does not receive the groups from OpenPlatform. Set FLOWEE_OP_GROUPS, or op_groups in the config, with the address of the users API of OpenPlatform.)';
+
+					exports.set('ophint', ophint);
 
 					var examgroups = {};
 					for (var g of groups)

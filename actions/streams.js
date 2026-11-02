@@ -23,6 +23,26 @@ NEWACTION('Streams', {
 	}
 });
 
+// Why the user may not have any group: the interface shows it when the list is empty
+NEWACTION('Streams|groupsinfo', {
+	name: 'Diagnosis of the groups of the user',
+	route: '+API ?',
+	user: true,
+	action: function($) {
+
+		let user = $.user;
+		let session = user.platform && user.platform.groups instanceof Array ? user.platform.groups.length : 0;
+
+		let respond = () => $.callback({ sa: !!user.sa, usergroups: user.groups || [], session: session, state: FUNC.opstatus.state, detail: FUNC.opstatus.detail });
+
+		// The teachers get their groups from the users API of OpenPlatform: it is asked again so the answer is not old
+		if (user.sa && CONF.op_groups)
+			FUNC.opusers(respond);
+		else
+			respond();
+	}
+});
+
 NEWACTION('Streams|groups', {
 	name: 'Groups of the user',
 	route: '+API ?',

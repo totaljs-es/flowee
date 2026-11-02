@@ -31,7 +31,7 @@ NEWACTION('Classroom', {
 					students.push({ id: m.id, name: m.name, groups: m.groups || [] });
 			}
 
-			$.callback({ groups: groups, students: students, hasusers: !err && op.users.length > 0, limits: FUNC.limits(), exams: Object.keys(FUNC.exams()).map(group => Object.assign({ group: group, state: FUNC.examstate(group) }, FUNC.exams()[group])) });
+			$.callback({ groups: groups, students: students, hasusers: !err && op.users.length > 0, opstatus: FUNC.opstatus, limits: FUNC.limits(), exams: Object.keys(FUNC.exams()).map(group => Object.assign({ group: group, state: FUNC.examstate(group) }, FUNC.exams()[group])) });
 		});
 	}
 });

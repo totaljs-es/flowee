@@ -691,6 +691,24 @@
 						if (!loaded) {
 							loaded = true;
 
+							// No groups: the person is told why (it is the first thing that fails when OpenPlatform is not configured)
+							!opgroups.length && exports.tapi('Streams|groupsinfo ERROR', function(info) {
+								var text = '';
+								if (!info.sa)
+									text = '@(You do not belong to any group of OpenPlatform, or the group does not have this application. Ask the administrator. Teachers need the superadmin option, sa, in OpenPlatform.)';
+								else if (info.state === 'unset')
+									text = '@(Flow EE does not receive the groups from OpenPlatform. Set FLOWEE_OP_GROUPS, or op_groups in the config, with the address of the users API of OpenPlatform.)';
+								else if (info.state === 'unreachable')
+									text = '@(The server of Flow EE cannot reach the users API of OpenPlatform. Check the address of FLOWEE_OP_GROUPS, the network of the container and the certificate.)' + (info.detail ? ' (' + info.detail + ')' : '');
+								else if (info.state === 'denied')
+									text = '@(OpenPlatform refuses the token of FLOWEE_OP_GROUPS. Check that the public API of the users is enabled in OpenPlatform and that the token is the same.)';
+								else if (info.state === 'invalid')
+									text = '@(The answer of FLOWEE_OP_GROUPS does not look like the users API of OpenPlatform. Check the address.)';
+								else
+									text = '@(OpenPlatform has no groups yet. Create them in OpenPlatform, in the settings.)';
+								SETTER('message/warning', text);
+							});
+
 							// The student is told when an exam of his groups has not started, is open or has finished
 							!user.sa && exports.tapi('Streams|exam ERROR', function(exams) {
 								for (var exam of (exams || [])) {

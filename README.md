@@ -145,6 +145,16 @@ The file `config` has the usual settings of Flow plus these:
 | `flowstream_memory` | Maximum memory in MB of each FlowStream (`0` is automatic). Recommended in a class. |
 | `$proxytimeout` | Timeout of the proxy of the FlowStreams, in seconds. |
 
+### If the groups do not appear
+
+The groups of a student come with his session of OpenPlatform. The teacher (the user with `sa`) gets them from the users API of OpenPlatform when `op_groups` (or `FLOWEE_OP_GROUPS`) is set, and from the session when it is not. When there is no group to choose, Flow EE says why when the teacher or the student enters, and the log of the application and the panel of Classroom say what happened with `op_groups`:
+
+- **unset:** there is no `op_groups`: set `FLOWEE_OP_GROUPS` (or `op_groups` in the config) with the address of the users API, `https://my_openplatform/users/?token=THE_TOKEN`, without the brackets of the example.
+- **unreachable:** the server of Flow EE cannot reach that address (the name or the port, the network of the container, the certificate). `localhost` inside a container is not the host.
+- **denied:** OpenPlatform refuses the token: the public API of the users must be enabled in its settings and the token must be the same.
+- **invalid:** the answer is not the users API of OpenPlatform.
+- A student with no groups, or whose group does not have the application, sees an empty list: check his groups in OpenPlatform. A teacher needs the `sa` option.
+
 ### Configure from the environment
 
 Every setting can also be given as an environment variable: `FLOWEE_` plus the key in upper case. It wins over the file `config` and an empty value is ignored, so a container is configured without editing files (the `docker-compose.yaml` has them all, and reads a `.env` file):

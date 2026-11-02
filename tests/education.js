@@ -36,6 +36,11 @@ function fakeop() {
 		// The public API of the users
 		if (req.url.startsWith('/users/')) {
 			res.setHeader('content-type', 'application/json');
+			// Like OpenPlatform: a wrong token gets an error
+			if (new URL(req.url, 'http://x').searchParams.get('token') !== 'test') {
+				res.end(JSON.stringify([{ error: 'Invalid token' }]));
+				return;
+			}
 			res.end(JSON.stringify({ groups: GROUPS, users: Object.keys(USERS).map(key => Object.assign({ isdisabled: false, isinactive: false }, USERS[key])) }));
 			return;
 		}
@@ -58,8 +63,8 @@ function opurl(name) {
 	return base + '~' + md5(base, 'REQ');
 }
 
-async function api(user, schema, data) {
-	const response = await fetch(BASE + '/fapi/?openplatform=' + encodeURIComponent(opurl(user)), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ schema: schema, data: data }) });
+async function api(user, schema, data, base) {
+	const response = await fetch((base || BASE) + '/fapi/?openplatform=' + encodeURIComponent(opurl(user)), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ schema: schema, data: data }) });
 	const text = await response.text();
 	let json = null;
 	try {
@@ -143,6 +148,10 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 		check('a student sees only his group', r.json && r.json.length === 1 && r.json[0].id === 'g1' && r.json[0].name === 'Class A', r.text);
 		r = await api('teacher', 'Streams|groups');
 		check('the teacher sees all the groups', r.json && r.json.length === 3, r.text);
+		r = await api('teacher', 'Streams|groupsinfo');
+		check('the diagnosis of the teacher is "ok" with the groups of OpenPlatform', r.json && r.json.state === 'ok' && r.json.sa === true && r.json.session === 3, r.text);
+		r = await api('s1', 'Streams|groupsinfo');
+		check('the diagnosis of a student has his groups and he is not a teacher', r.json && r.json.sa === false && r.json.usergroups.length === 1 && r.json.usergroups[0] === 'g1', r.text);
 
 		r = await api('s1', 'Streams|save', { name: 'Student 1 flow', group: 'g1', icon: 'ti ti-microchip' });
 		check('a student creates a FlowStream in his group', r.json && r.json.success, r.text);
@@ -584,6 +593,47 @@ const denied = r => r.status !== 200 || !!(r.json && (r.json.error || (Array.isA
 
 	} catch (e) {
 		check('the tests finished without an error', false, e && e.stack);
+	}
+
+	// The groups of OpenPlatform when the application cannot get them: it says why, and the groups of the session still work
+	const extra = [];
+
+	async function other(port, groups) {
+
+		const dir2 = Path.join(tmp, 'app' + port);
+		Fs.cpSync(ROOT, dir2, { recursive: true, filter: file => !skip.has(Path.basename(file)) });
+		Fs.mkdirSync(Path.join(dir2, 'node_modules'));
+		Fs.symlinkSync(process.env.TOTAL5 || Path.dirname(require.resolve('total5/package.json', { paths: [ROOT] })), Path.join(dir2, 'node_modules', 'total5'));
+		Fs.mkdirSync(Path.join(dir2, 'databases'));
+		Fs.writeFileSync(Path.join(dir2, 'databases', 'memorize_preferences.json'), JSON.stringify({ token: 'privatetoken', name: 'Flow EE', env: 'dev' }));
+
+		const env = Object.assign({}, process.env, { FLOWEE_OP_REQTOKEN: 'REQ', FLOWEE_OP_RESTOKEN: 'RES' });
+		groups && (env.FLOWEE_OP_GROUPS = groups);
+
+		const proc = spawn(process.execPath, ['index.js', String(port), '--release'], { cwd: dir2, stdio: 'ignore', detached: true, env: env });
+		extra.push(proc);
+		await sleep(5000);
+		return 'http://127.0.0.1:' + port;
+	}
+
+	try {
+
+		for (const [port, groups, state] of [[APP_PORT + 1, 'http://127.0.0.1:' + OP_PORT + '/users/?token=wrong', 'denied'], [APP_PORT + 2, 'http://127.0.0.1:1/users/?token=test', 'unreachable'], [APP_PORT + 3, '', 'unset']]) {
+			const base = await other(port, groups);
+			let info = await api('teacher', 'Streams|groupsinfo', {}, base);
+			check('the diagnosis says "' + state + '" when OpenPlatform cannot give the groups', info.json && info.json.state === state && info.json.sa === true, info.text);
+			info = await api('teacher', 'Streams|groups', {}, base);
+			check('the teacher still gets the groups of the session when op_groups fails (' + state + ')', info.json && info.json.length === 3, info.text);
+			info = await api('teacher', 'Classroom', {}, base);
+			check('the panel of the teacher says it too (' + state + ')', info.json && info.json.opstatus && info.json.opstatus.state === state, info.text);
+		}
+
+	} catch (e) {
+		check('the extra applications finished without an error', false, e && e.stack);
+	}
+
+	for (const proc of extra) {
+		try { process.kill(-proc.pid, 'SIGKILL'); } catch (e) {}
 	}
 
 	stop();

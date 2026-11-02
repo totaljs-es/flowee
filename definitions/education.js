@@ -75,27 +75,55 @@ FUNC.streamgroups = function($, callback) {
 		callback(arr);
 	};
 
-	if (user.sa && CONF.op_groups) {
-		RESTBuilder.GET(CONF.op_groups).callback(function(err, response) {
-			done(!err && response && response.groups instanceof Array ? response.groups : all);
-		});
-	} else
+	if (user.sa && CONF.op_groups)
+		FUNC.opusers((err, response) => done(response.groups.length ? response.groups : all));
+	else
 		done(all);
 };
 
 // The users and the groups of OpenPlatform (the public API of the users, it needs the address "op_groups" in the config)
+// What happened the last time that the application asked OpenPlatform for the groups: { state, detail }
+// state: "unset" (no op_groups), "ok", "unreachable" (the request failed), "denied" (OpenPlatform refuses the token) or "invalid" (it is not the users API)
+FUNC.opstatus = { state: 'unset', detail: '' };
+
+function opstate(state, detail) {
+
+	// The log says the reason when it changes, so the person who deploys it can read it
+	if (FUNC.opstatus.state !== state || FUNC.opstatus.detail !== detail) {
+		FUNC.opstatus = { state: state, detail: detail };
+		state !== 'ok' && state !== 'unset' && console.log('Flow EE: the groups of OpenPlatform (op_groups) are not available: ' + state + (detail ? ' (' + detail + ')' : ''));
+	}
+}
+
 FUNC.opusers = function(callback) {
 
 	if (!CONF.op_groups) {
+		opstate('unset', '');
 		callback(null, { groups: [], users: [] });
 		return;
 	}
 
 	RESTBuilder.GET(CONF.op_groups).callback(function(err, response) {
-		if (err || !response || !(response.users instanceof Array))
-			callback(err || 'Invalid response', { groups: [], users: [] });
-		else
+
+		// An error of OpenPlatform ([{ error: '...' }], e.g. a wrong token) arrives as a list of errors; a failed request is an Error
+		let items = err instanceof Array ? err : (err && err.items instanceof Array ? err.items : null);
+
+		if (items && items[0] && items[0].error) {
+			opstate('denied', String(items[0].error).substring(0, 200));
+			callback('Denied', { groups: [], users: [] });
+		} else if (err) {
+			opstate('unreachable', err.toString().substring(0, 200));
+			callback(err, { groups: [], users: [] });
+		} else if (response instanceof Array && response[0] && response[0].error) {
+			opstate('denied', String(response[0].error).substring(0, 200));
+			callback('Denied', { groups: [], users: [] });
+		} else if (!response || !(response.users instanceof Array) || !(response.groups instanceof Array)) {
+			opstate('invalid', '');
+			callback('Invalid response', { groups: [], users: [] });
+		} else {
+			opstate('ok', '');
 			callback(null, response);
+		}
 	});
 };
 
