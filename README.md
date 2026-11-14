@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/totaljs-es/toto/main/assets/brand/favicon-192.png" width="128" height="128" alt="Toto, the fox of Spanish Total.js" /></p>
+<p align="center"><img src="docs/brand/flowee.svg" width="128" height="128" alt="Flowee logo" /></p>
 
 <h1 align="center">Total.js Flow Education Edition</h1>
 
