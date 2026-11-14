@@ -1,6 +1,14 @@
-[![UPM](https://www.upm.es/themes/comun/logos/institucional.png)](https://upm.es/internacional/) 
+<p align="center"><img src="https://raw.githubusercontent.com/totaljs-es/toto/main/assets/brand/favicon-192.png" width="128" height="128" alt="Toto, the fox of Spanish Total.js" /></p>
 
-# Total.js Flow Education Edition
+<h1 align="center">Total.js Flow Education Edition</h1>
+
+<p align="center">
+  <a href="https://github.com/totaljs-es/flowee/actions/workflows/docker-image.yml"><img src="https://github.com/totaljs-es/flowee/actions/workflows/docker-image.yml/badge.svg" alt="Docker image" /></a>
+  <a href="https://www.totaljs.com"><img src="https://img.shields.io/badge/built%20with-Total.js%20Flow-f26d21" alt="Built with Total.js Flow" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/totaljs-es/flowee" alt="MIT license" /></a>
+</p>
+
+[![UPM](https://www.upm.es/themes/comun/logos/institucional.png)](https://upm.es/internacional/)
 
 __Special thanks to UPM. [(Universidad Politécnica de Madrid)](https://www.upm.es/internacional/)__
 
